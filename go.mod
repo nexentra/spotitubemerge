@@ -5,6 +5,11 @@ go 1.20
 require google.golang.org/api v0.125.0
 
 require (
+	github.com/Aracki/gotube v0.0.0-20181113154217-949c81c904bd // indirect
+	github.com/aracki/gotube v0.0.0-20181113154217-949c81c904bd // indirect
+)
+
+require (
 	cloud.google.com/go/compute v1.20.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
