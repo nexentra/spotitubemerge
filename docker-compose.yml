@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: spotitubemerge
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/home/susmaster69/Desktop/go-ftw/spotitubemerge/database/data
+
+  web:
+    build: .
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5433
+      DB_USER: postgres
+      DB_PASSWORD: mysecretpassword
+      DB_NAME: spotitubemerge
+
+volumes:
+  postgres_data:

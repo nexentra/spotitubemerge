@@ -30,7 +30,7 @@ func main() {
 	http.HandleFunc("/playlists", handlePlaylists)
 
 	log.Println("Starting server on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Print(http.ListenAndServe(":8080", nil))
 }
 
 func initWebApp() {
@@ -38,12 +38,12 @@ func initWebApp() {
 
 	b, err := ioutil.ReadFile("client_secret.json")
 	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
+		log.Printf("Unable to read client secret file: %v", err)
 	}
 
 	config, err = google.ConfigFromJSON(b, youtube.YoutubeReadonlyScope)
 	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
+		log.Printf("Unable to parse client secret file to config: %v", err)
 	}
 }
 
@@ -60,7 +60,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 	var code = r.URL.Query().Get("code")
 	tok, err := config.Exchange(ctx, code)
 	if err != nil {
-		log.Fatalf("Unable to retrieve token from web %v", err)
+		log.Printf("Unable to retrieve token from web %v", err)
 	}
 
 	// Save the token in the variable instead of caching
@@ -77,19 +77,19 @@ func getPlaylists() {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatalf("Failed to create request: %v", err)
+		log.Printf("Failed to create request: %v", err)
 	}
 
 	client := http.DefaultClient
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("Failed to send request: %v", err)
+		log.Printf("Failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("Failed to read response body: %v", err)
+		log.Printf("Failed to read response body: %v", err)
 	}
 
 	fmt.Println(string(body))
@@ -106,7 +106,7 @@ func handlePlaylists(w http.ResponseWriter, r *http.Request) {
 
 	// client := config.Client(ctx, token)
 	// if client == nil {
-	// 	log.Fatal("Unable to create OAuth client")
+	// 	log.Print("Unable to create OAuth client")
 	// }
 	// fmt.Println("client: ", client)
 	ctx = context.Background()
@@ -138,6 +138,6 @@ func handlePlaylists(w http.ResponseWriter, r *http.Request) {
 
 func handleError(err error, message string) {
 	if message != "" && err != nil {
-		log.Fatalf(message+": %v", err)
+		log.Printf(message+": %v", err)
 	}
 }
