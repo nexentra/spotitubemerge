@@ -1,22 +1,27 @@
-name: Test
-
+name: golangci-lint
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+permissions:
+  contents: read
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - name: Use Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: "16.x"
-            # Build
-            - run: npm ci
-            - run: npm run build
-            # Test
-            - run: npm run check
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.29
+          skip-cache: true
+          skip-pkg-cache: true
+          skip-build-cache: true
