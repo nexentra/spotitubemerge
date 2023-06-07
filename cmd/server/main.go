@@ -10,6 +10,15 @@ import (
 	"github.com/zmb3/spotify/v2/auth"
 )
 
+type Application struct {
+	spotifyAuthenticator *spotifyauth.Authenticator
+	spotifyClient        *spotify.Client
+	spotifyRedirectURI   string
+	spotifyState         string
+	spotifyID            string
+	spotifySecret        string
+}
+
 const missingClientSecretsMessage = `
 Please configure OAuth 2.0
 `
@@ -70,7 +79,6 @@ func completeAuth(w http.ResponseWriter, r *http.Request) {
 
 	client := spotify.New(authenticator.Client(r.Context(), tok))
 	fmt.Fprint(w, "Login Completed!")
-
 
 	user, err := client.CurrentUser(context.Background())
 	if err != nil {
