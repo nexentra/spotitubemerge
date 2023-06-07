@@ -10,4 +10,5 @@ type SpotifyModel struct {
 	Client        *spotify.Client
 	RedirectURI   string
 	State         string
+	UserId 	  string
 }

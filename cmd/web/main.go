@@ -1,18 +1,22 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/nexentra/spotitubemerge/internal/models"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/youtube/v3"
 )
 
 type Application struct {
 	ErrorLog             *log.Logger
 	InfoLog              *log.Logger
 	Spotify              *models.SpotifyModel
+	Youtube              *models.YoutubeModel
 }
 
 const missingClientSecretsMessage = `
@@ -20,8 +24,18 @@ Please configure OAuth 2.0
 `
 
 func main() {
+	b, err := ioutil.ReadFile("client_secret.json")
+	if err != nil {
+		log.Printf("Unable to read client secret file: %v", err)
+	}
+
+	config, err := google.ConfigFromJSON(b, youtube.YoutubeReadonlyScope)
+	if err != nil {
+		log.Printf("Unable to parse client secret file to config: %v", err)
+	}
+	
 	authenticator := spotifyauth.New(
-		spotifyauth.WithRedirectURL("http://localhost:8080/callback"),
+		spotifyauth.WithRedirectURL("http://localhost:8080/auth/spotify/callback"),
 		spotifyauth.WithScopes(
 			spotifyauth.ScopeUserReadPrivate,
 			spotifyauth.ScopePlaylistReadCollaborative,
@@ -38,6 +52,10 @@ func main() {
 			Authenticator: authenticator,
 			State:         "abc123",
 		},
+		Youtube: &models.YoutubeModel{
+			Config: config,
+			State:  "abc123",
+		},
 	}
 
 	mux := http.NewServeMux()
@@ -49,6 +67,6 @@ func main() {
 	}
 
 	app.InfoLog.Printf("Starting server on http://localhost:%d", 8080)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	app.ErrorLog.Fatal(err)
 }
