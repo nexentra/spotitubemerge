@@ -20,9 +20,9 @@ const Ping = () => {
     const resp = await fetch(url);
     return resp.text();
   }
-  const { data, error } = useSWR("http://localhost:8080/api", fetcher, { refreshInterval: 1000 });
+  const { data, error } = useSWR("/api", fetcher, { refreshInterval: 1000 });
   return  <div>
-  <h1>Hello, world!</h1>
+  <h1 className='bg-gray-100'>Hello, world!</h1>
   <p>This is <code>pages/index.tsx</code>.</p>
   <p>Check out <Link href="/foo">foo</Link>.</p>
 

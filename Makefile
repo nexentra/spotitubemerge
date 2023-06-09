@@ -1,5 +1,5 @@
 run-backend:
-	go run ./cmd/web
+	go run ./cmd/web/.
 
 run-frontend:
 	cd ./ui && npm run dev
@@ -7,14 +7,21 @@ run-frontend:
 run: 
 	run-backend run-frontend
 
-
-build:
+build-run:
+	cd ./ui && npm run export
+	cd ..
 	rm ./spotitubemerge
 	CGO_ENABLED=0 go build -ldflags "-w" -a -o spotitubemerge ./cmd/web
 	./spotitubemerge
 
+build:
+	cd ./ui && npm run export
+	cd ..
+	rm ./spotitubemerge
+	CGO_ENABLED=0 go build -ldflags "-w" -a -o spotitubemerge ./cmd/web
+
 build-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/web
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o spotitubemerge ./cmd/web
 
 docker-up:
 	docker-compose up --build
@@ -31,6 +38,3 @@ docker-rebuild:
 run-log:
 	# go run ./cmd/web >>tmp/info.log 2>>tmp/error.log
 	go run ./cmd/web -log
-
-help:
-	go run ./cmd/web -help

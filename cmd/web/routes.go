@@ -32,7 +32,11 @@ func (app *Application) routes(mux *http.ServeMux) http.Handler {
 		Filesystem: frontend.BuildHTTPFS(),
 		HTML5:      true,
 	}))
-	// router.GET("/api", http.HandlerFunc(handleAPI))
+	router.GET("/api", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, echo.Map{
+			"message": "hello from the echo server",
+		})
+	})
 	// router.GET("/auth/youtube", http.HandlerFunc(app.loginYoutube))
 	// router.GET("/auth/youtube/callback", http.HandlerFunc(app.callbackYoutube))
 	// router.GET("/youtube-playlist", http.HandlerFunc(app.getYoutubePlaylist))

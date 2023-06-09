@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export": "rm -rf .next && next build"
+    "export": "rm -rf .next && rm -rf dist && next build"
   },
   "dependencies": {
     "@types/node": "20.2.5",
