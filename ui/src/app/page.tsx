@@ -2,6 +2,8 @@
  "use client";
 import { useState } from 'react';
 import axios from 'axios';
+import useSWR from "swr";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -12,28 +14,21 @@ export default function Home() {
 }
 
 
+
 const Ping = () => {
-  
-  const [notification, setNotification] = useState('');
-
-  const handlePing = async () => {
-      try {
-          const response = await axios.get('/api/ping');
-          setNotification(`Successful ping with response: ${response.data}`);
-      } catch (e) {
-          setNotification('Failed to ping');
-      }
-
-      setTimeout(() => setNotification(''), 2000);
+  async function fetcher(url: string) {
+    const resp = await fetch(url);
+    return resp.text();
   }
+  const { data, error } = useSWR("http://localhost:8080/api", fetcher, { refreshInterval: 1000 });
+  return  <div>
+  <h1>Hello, world!</h1>
+  <p>This is <code>pages/index.tsx</code>.</p>
+  <p>Check out <Link href="/foo">foo</Link>.</p>
 
-  return (
-      <div>
-          <div>
-              <p>{notification}</p>
-
-              <button onClick={handlePing}>Ping</button>
-          </div>
-      </div>
-  );
+  <h2>Memory allocation stats from Go server</h2>
+  {error && <p>Error fetching profile: <strong>{error}</strong></p>}
+  {!error && !data && <p>Loading ...</p>}
+  {!error && data && <pre>{data}</pre>}
+</div>
 };

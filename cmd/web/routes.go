@@ -1,26 +1,54 @@
 package main
 
 import (
+	"embed"
+	// "log"
 	"net/http"
+	// "runtime/pprof"
 
-	"github.com/julienschmidt/httprouter"
-	"github.com/justinas/alice"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	// "github.com/justinas/alice"
+	"github.com/nexentra/spotitubemerge/ui"
 )
 
+// go:embed ui/dist/* ui/dist/_next/* 
+var nextFS embed.FS
 func (app *Application) routes(mux *http.ServeMux) http.Handler {
-	router := httprouter.New()
-	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.notFound(w)
-	})
+	// buildPath := filepath.Join("ui", "dist")
+	// staticFs, err := fs.Sub(nextFS, buildPath)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	router := echo.New()
+	// router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 	app.notFound(w)
+	// })
 
 	// router.Handler(http.MethodGet, "/", http.HandlerFunc(app.home))
-	router.Handler(http.MethodGet, "/auth/youtube", http.HandlerFunc(app.loginYoutube))
-	router.Handler(http.MethodGet, "/auth/youtube/callback", http.HandlerFunc(app.callbackYoutube))
-	router.Handler(http.MethodGet, "/youtube-playlist", http.HandlerFunc(app.getYoutubePlaylist))
+	router.GET("/hello.json", handleHello)
+	router.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Filesystem: frontend.BuildHTTPFS(),
+		HTML5:      true,
+	}))
+	// router.GET("/api", http.HandlerFunc(handleAPI))
+	// router.GET("/auth/youtube", http.HandlerFunc(app.loginYoutube))
+	// router.GET("/auth/youtube/callback", http.HandlerFunc(app.callbackYoutube))
+	// router.GET("/youtube-playlist", http.HandlerFunc(app.getYoutubePlaylist))
 
-	router.Handler(http.MethodGet, "/auth/spotify", http.HandlerFunc(app.loginSpotify))
-	router.Handler(http.MethodGet, "/auth/spotify/callback", http.HandlerFunc(app.callbackSpotify))
-	router.Handler(http.MethodGet, "/spotify-playlist", http.HandlerFunc(app.getSpotifyPlaylist))
-	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
-	return standard.Then(router)
+	// router.GET("/auth/spotify", http.HandlerFunc(app.loginSpotify))
+	// router.GET("/auth/spotify/callback", http.HandlerFunc(app.callbackSpotify))
+	// router.GET("/spotify-playlist", http.HandlerFunc(app.getSpotifyPlaylist))
+	// standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
+	// return standard.Then(router)
+	return router
+}
+
+
+
+func handleHello(c echo.Context) error {
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "hello from the echo server",
+	})
 }
