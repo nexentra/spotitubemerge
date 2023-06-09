@@ -10,18 +10,18 @@ run:
 build-run:
 	cd ./ui && npm run export
 	cd ..
-	rm ./spotitubemerge
-	CGO_ENABLED=0 go build -ldflags "-w" -a -o spotitubemerge ./cmd/web
-	./spotitubemerge
+	rm ./main
+	CGO_ENABLED=0 go build -ldflags "-w" -a -o main ./cmd/web
+	./main
 
 build:
 	cd ./ui && npm run export
 	cd ..
-	rm ./spotitubemerge
-	CGO_ENABLED=0 go build -ldflags "-w" -a -o spotitubemerge ./cmd/web
+	rm ./main
+	CGO_ENABLED=0 go build -ldflags "-w" -a -o main ./cmd/web
 
 build-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o spotitubemerge ./cmd/web
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/web
 
 docker-up:
 	docker-compose up --build
