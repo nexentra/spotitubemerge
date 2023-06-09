@@ -1,8 +1,16 @@
-run:
+run-backend:
 	go run ./cmd/web
 
+run-frontend:
+	cd ./ui && npm run dev
+
+run: 
+	run-backend run-frontend
+
+
 build:
-	go build -o main ./cmd/web
+	CGO_ENABLED=0 go build -ldflags "-w" -a -o spotitubemerge ./cmd/web
+	rice append -i ./cmd/web/. --exec spotitubemerge
 
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/web

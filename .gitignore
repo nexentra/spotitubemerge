@@ -1,3 +1,7 @@
 client_secret.json
 .env
 /tmp
+/ui/.next
+/ui/dist
+/ui/node_modules
+*.exe
