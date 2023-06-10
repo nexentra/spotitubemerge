@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	// "log"
 	"net/http"
 	// "runtime/pprof"
@@ -11,16 +10,7 @@ import (
 	// "github.com/justinas/alice"
 	"github.com/nexentra/spotitubemerge/ui"
 )
-
-// go:embed ui/dist/* ui/dist/_next/* 
-var nextFS embed.FS
 func (app *Application) routes(mux *http.ServeMux) http.Handler {
-	// buildPath := filepath.Join("ui", "dist")
-	// staticFs, err := fs.Sub(nextFS, buildPath)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	router := echo.New()
 	// router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	// 	app.notFound(w)

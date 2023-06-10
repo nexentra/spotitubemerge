@@ -1,5 +1,3 @@
-**/client_secret.json
-**/.env
 tmp
 ui/.next
 ui/dist
@@ -29,9 +27,6 @@ ui/**/*.pem
 ui/**/npm-debug.log*
 ui/**/yarn-debug.log*
 ui/**/yarn-error.log*
-
-# local env files
-ui/**/.env*.local
 
 # vercel
 ui/**/.vercel

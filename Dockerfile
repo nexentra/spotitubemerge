@@ -18,11 +18,8 @@ RUN CGO_ENABLED=0 go build -ldflags "-w" -a -buildvcs=false -o main ./cmd/web
 # Stage 3: Run the binary
 FROM gcr.io/distroless/static
 EXPOSE 8080
-ENV DB_HOST=db
-ENV DB_PORT=5432
-ENV DB_USER=postgres
-ENV DB_PASSWORD=mysecretpassword
-ENV DB_NAME=mydb
 WORKDIR /app
 COPY --from=binary-builder --chown=nonroot:nonroot /builder/main .
+COPY client_secret.json client_secret.json
+COPY .env .env
 ENTRYPOINT ["./main"]

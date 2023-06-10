@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/joho/godotenv"
 	"github.com/nexentra/spotitubemerge/internal/models"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2/google"
@@ -17,6 +18,7 @@ type Application struct {
 	InfoLog              *log.Logger
 	Spotify              *models.SpotifyModel
 	Youtube              *models.YoutubeModel
+	Env 				map[string]string
 }
 
 const missingClientSecretsMessage = `
@@ -24,6 +26,8 @@ Please configure OAuth 2.0
 `
 
 func main() {
+	envFile, _ := godotenv.Read(".env")
+	
 	b, err := ioutil.ReadFile("client_secret.json")
 	if err != nil {
 		log.Printf("Unable to read client secret file: %v", err)
@@ -56,6 +60,7 @@ func main() {
 			Config: config,
 			State:  "abc123",
 		},
+		Env: envFile,
 	}
 
 	mux := http.NewServeMux()
