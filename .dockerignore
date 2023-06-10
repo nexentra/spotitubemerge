@@ -1,0 +1,46 @@
+# flyctl launch added from .gitignore
+**/client_secret.json
+**/.env
+tmp
+ui/.next
+ui/dist
+ui/node_modules
+**/*.exe
+
+# flyctl launch added from ui/.gitignore
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+ui/node_modules
+ui/.pnp
+ui/**/.pnp.js
+
+# testing
+ui/coverage
+
+# next.js
+ui/.next
+ui/out
+
+# production
+ui/build
+
+# misc
+ui/**/.DS_Store
+ui/**/*.pem
+
+# debug
+ui/**/npm-debug.log*
+ui/**/yarn-debug.log*
+ui/**/yarn-error.log*
+
+# local env files
+ui/**/.env*.local
+
+# vercel
+ui/**/.vercel
+
+# typescript
+ui/**/*.tsbuildinfo
+ui/**/next-env.d.ts
+fly.toml

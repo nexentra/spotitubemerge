@@ -13,7 +13,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 COPY --from=frontend-builder /ui/dist ./ui/dist
-RUN CGO_ENABLED=0 go build -ldflags "-w" -a -o main ./cmd/web
+RUN CGO_ENABLED=0 go build -ldflags "-w" -a -buildvcs=false -o main ./cmd/web
 
 # Stage 3: Run the binary
 FROM gcr.io/distroless/static
