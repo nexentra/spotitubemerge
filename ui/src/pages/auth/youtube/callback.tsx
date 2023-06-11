@@ -1,10 +1,8 @@
 // @ts-nocheck
-"use client";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import jsCookie from "js-cookie";
-import exp from "constants";
 
 function Callback() {
   const router = useRouter();
@@ -12,7 +10,7 @@ function Callback() {
     const code = router.query.code; // Get the code query parameter from the URL
     try {
       const response = await axios.post("/api/auth/youtube/callback", { code });
-      console.log("Token:", response.data.token);
+      let token = response.data.token
       if (token) {
         const expiryTime = response.data.token.expiry;
 
