@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -67,17 +68,25 @@ func (app *Application) callbackSpotify(c echo.Context) error {
 	fmt.Println("You are logged in as:", user.ID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": tok,
-		"client": client,
 	})
 }
 
 func (app *Application) getSpotifyPlaylist(c echo.Context) error {
-	// Get user's playlists
-	playlists, err := app.Spotify.Client.GetPlaylistsForUser(context.Background(), app.Spotify.UserId)
+	var authHeaderType *oauth2.Token
+	authHeader := c.Request().Header.Get("Authorization")
+	json.Unmarshal([]byte(authHeader), &authHeaderType)
+	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderType))
+
+	user, err := client.CurrentUser(c.Request().Context())
 	if err != nil {
 		app.ErrorLog.Print(err)
 	}
-	fmt.Println("Playlists:")
+
+	playlists, err := client.GetPlaylistsForUser(c.Request().Context(), user.ID)
+	if err != nil {
+		app.ErrorLog.Print(err)
+	}
+	fmt.Println("Playlists:", playlists)
 	for _, playlist := range playlists.Playlists {
 		fmt.Println("  ", playlist.Name)
 	}
@@ -88,7 +97,7 @@ func (app *Application) getSpotifyPlaylist(c echo.Context) error {
 }
 
 func (app *Application) loginYoutube(c echo.Context) error {
-	authURL := app.Youtube.Config.AuthCodeURL(app.Spotify.State, oauth2.AccessTypeOnline)
+	authURL := app.Youtube.Config.AuthCodeURL(app.Youtube.State, oauth2.AccessTypeOnline)
 	fmt.Println("Auth URL: ", authURL)
 	// c.Redirect(http.StatusMovedPermanently, authURL)
 	return c.JSON(http.StatusOK, echo.Map{
@@ -121,27 +130,22 @@ func (app *Application) callbackYoutube(c echo.Context) error {
 }
 
 func (app *Application) getYoutubePlaylist(c echo.Context) error {
-	fmt.Println("Token: ", app.Youtube.Token.AccessToken)
-	url := "https://www.googleapis.com/youtube/v3/playlists?part=snippet%2CcontentDetails&maxResults=" + "25" + "&mine=true&key=" + app.Youtube.Config.ClientID + "&access_token=" + app.Youtube.Token.AccessToken
-
-	req, err := http.NewRequest("GET", url, nil)
+	var authHeaderType *oauth2.Token
+	authHeader := c.Request().Header.Get("Authorization")
+	json.Unmarshal([]byte(authHeader), &authHeaderType)
+	url := "https://www.googleapis.com/youtube/v3/playlists?part=snippet%2CcontentDetails&maxResults=" + "25" + "&mine=true&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderType.AccessToken
+	fmt.Println("URL: ", url)
+	response, err := http.Get(url)
 	if err != nil {
-		app.ErrorLog.Printf("Failed to create request: %v", err)
-	}
+        fmt.Print(err.Error())
+    }
 
-	client := http.DefaultClient
-	resp, err := client.Do(req)
-	if err != nil {
-		app.ErrorLog.Printf("Failed to send request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		app.ErrorLog.Printf("Failed to read response body: %v", err)
-	}
+    responseData, err := ioutil.ReadAll(response.Body)
+    if err != nil {
+        fmt.Print(err.Error())	
+    }
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"playlists": body,
+		"playlists": string(responseData),
 	})
 }

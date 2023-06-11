@@ -19,9 +19,10 @@ function Callback() {
 
         const timeDiff = expiryDate - currentDate;
         const hoursDiff = timeDiff / (1000 * 60 * 60);
-        jsCookie.set("yt-token", response.data.token.access_token, {
+        jsCookie.set("yt-token", JSON.stringify(response.data.token), {
           expires: hoursDiff,
         });
+        router.push("/auth/youtube/playlists");
       }
     } catch (error) {
       console.error("Error:", error);

@@ -2,7 +2,7 @@
 import axios from "axios";
 import jsCookie from "js-cookie";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 
 function Callback() {
   const router = useRouter();
@@ -19,9 +19,13 @@ function Callback() {
 
         const timeDiff = expiryDate - currentDate;
         const hoursDiff = timeDiff / (1000 * 60 * 60);
-        jsCookie.set("spotify-token", response.data.token.access_token, {
+        // jsCookie.set("spotify-token", response.data.token.access_token, {
+        //   expires: hoursDiff,
+        // });
+        jsCookie.set("spotify-token", JSON.stringify(response.data.token), {
           expires: hoursDiff,
         });
+        router.push("/auth/spotify/playlists");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -34,6 +38,7 @@ function Callback() {
       handleCallback();
     }
   }, [router?.isReady]);
+
     return (
       <div className="container ">
         <div className=" flex h-[calc(100vh-160px)] items-center justify-center py-16 xl:py-24">
