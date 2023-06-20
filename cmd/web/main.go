@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/joho/godotenv"
@@ -14,20 +16,56 @@ import (
 )
 
 type Application struct {
-	ErrorLog             *log.Logger
-	InfoLog              *log.Logger
-	Spotify              *models.SpotifyModel
-	Youtube              *models.YoutubeModel
-	Env 				map[string]string
+	ErrorLog *log.Logger
+	InfoLog  *log.Logger
+	Spotify  *models.SpotifyModel
+	Youtube  *models.YoutubeModel
+	Env      map[string]string
 }
 
-const missingClientSecretsMessage = `
-Please configure OAuth 2.0
-`
+type configType struct {
+	logToFile bool
+}
 
 func main() {
 	envFile, _ := godotenv.Read(".env")
-	
+	var cfg configType
+	var errorLog *log.Logger
+	var infoLog *log.Logger
+
+	flag.BoolVar(&cfg.logToFile, "log", false, "Enable logging to file")
+	flag.Parse()
+
+	if cfg.logToFile {
+		infoFile, err := os.OpenFile("tmp/info.log", os.O_RDWR|os.O_CREATE, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = infoFile.Truncate(0)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		errFile, err := os.OpenFile("tmp/error.log", os.O_RDWR|os.O_CREATE, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = errFile.Truncate(0)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer infoFile.Close()
+		defer errFile.Close()
+		infoLog = log.New(infoFile, "INFO\t", log.Ldate|log.Ltime)
+		errorLog = log.New(errFile, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	} else {
+		infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+		errorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	}
+
 	b, err := ioutil.ReadFile("client_secret.json")
 	if err != nil {
 		log.Printf("Unable to read client secret file: %v", err)
@@ -37,7 +75,7 @@ func main() {
 	if err != nil {
 		log.Printf("Unable to parse client secret file to config: %v", err)
 	}
-	
+
 	authenticator := spotifyauth.New(
 		spotifyauth.WithRedirectURL("http://localhost:8080/auth/spotify/callback"),
 		spotifyauth.WithScopes(
@@ -45,20 +83,20 @@ func main() {
 			spotifyauth.ScopePlaylistReadCollaborative,
 			spotifyauth.ScopePlaylistReadPrivate,
 		),
-		spotifyauth.WithClientID("28489fd2f52440fa90a7191fab27a787"),
-		spotifyauth.WithClientSecret("aa9f16eae0eb4d2a89a9e7a8e150e9b3"),
+		spotifyauth.WithClientID(envFile["SPOTIFY_CLIENT_ID"]),
+		spotifyauth.WithClientSecret(envFile["SPOTIFY_CLIENT_SECRET"]),
 	)
 
 	app := &Application{
-		ErrorLog: log.New(log.Writer(), "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile),
-		InfoLog:  log.New(log.Writer(), "INFO\t", log.Ldate|log.Ltime),
+		ErrorLog: errorLog,
+		InfoLog:  infoLog,
 		Spotify: &models.SpotifyModel{
 			Authenticator: authenticator,
-			State:         "abc123",
+			State:         envFile["SPOTIFY_STATE"],
 		},
 		Youtube: &models.YoutubeModel{
 			Config: config,
-			State:  "abc123",
+			State:  envFile["YOUTUBE_STATE"],
 		},
 		Env: envFile,
 	}

@@ -40,6 +40,7 @@ func (app *Application) routes(mux *http.ServeMux) http.Handler {
 	router.GET("/api/auth/spotify", app.loginSpotify)
 	router.POST("/api/auth/spotify/callback", app.callbackSpotify)
 	router.GET("/api/spotify-playlist", app.getSpotifyPlaylist)
+	router.GET("/api/youtube-items", app.getYoutubeItems)
 	// standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	// return standard.Then(router)
 	return router

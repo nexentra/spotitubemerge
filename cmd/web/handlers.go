@@ -133,19 +133,75 @@ func (app *Application) getYoutubePlaylist(c echo.Context) error {
 	var authHeaderType *oauth2.Token
 	authHeader := c.Request().Header.Get("Authorization")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
-	url := "https://www.googleapis.com/youtube/v3/playlists?part=snippet%2CcontentDetails&maxResults=" + "25" + "&mine=true&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderType.AccessToken
+	url := "https://www.googleapis.com/youtube/v3/playlists?part=snippet&contentDetails&maxResults=" + "25" + "&mine=true&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderType.AccessToken
 	fmt.Println("URL: ", url)
 	response, err := http.Get(url)
 	if err != nil {
-        fmt.Print(err.Error())
-    }
+		fmt.Print(err.Error())
+	}
 
-    responseData, err := ioutil.ReadAll(response.Body)
-    if err != nil {
-        fmt.Print(err.Error())	
-    }
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	app.InfoLog.Println(string(responseData))
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"playlists": string(responseData),
+	})
+}
+
+type YoutubePlaylists struct {
+	Items []string `json:"items"`
+}
+
+func (app *Application) getYoutubeItems(c echo.Context) error {
+	var authHeaderType *oauth2.Token
+	authHeader := c.Request().Header.Get("Authorization")
+	json.Unmarshal([]byte(authHeader), &authHeaderType)
+
+	strings := c.QueryParam("strings")
+	fmt.Println("strings: ", strings)
+
+	url := "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&contentDetails&playlistId=" + strings + "&maxResults=" + "25" + "&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderType.AccessToken
+
+	fmt.Println("URL: ", url)
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderType))
+	results, err := client.Search(c.Request().Context(), "holiday", spotify.SearchTypePlaylist|spotify.SearchTypeAlbum)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("results:", results)
+
+	// handle album results
+	if results.Albums != nil {
+		fmt.Println("Albums:")
+		for _, item := range results.Albums.Albums {
+			fmt.Println("   ", item.Name)
+		}
+	}
+	// handle playlist results
+	if results.Playlists != nil {
+		fmt.Println("Playlists:")
+		for _, item := range results.Playlists.Playlists {
+			fmt.Println("   ", item.Name)
+		}
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	fmt.Println("Response: ", string(responseData))
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"items": []string{string(responseData), "item2"},
 	})
 }
