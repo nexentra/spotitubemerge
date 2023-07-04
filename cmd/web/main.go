@@ -13,15 +13,8 @@ import (
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/youtube/v3"
+	"github.com/nexentra/spotitubemerge/cmd/web/app"
 )
-
-type Application struct {
-	ErrorLog *log.Logger
-	InfoLog  *log.Logger
-	Spotify  *models.SpotifyModel
-	Youtube  *models.YoutubeModel
-	Env      map[string]string
-}
 
 type configType struct {
 	logToFile bool
@@ -87,7 +80,7 @@ func main() {
 		spotifyauth.WithClientSecret(envFile["SPOTIFY_CLIENT_SECRET"]),
 	)
 
-	app := &Application{
+	app := &app.Application{
 		ErrorLog: errorLog,
 		InfoLog:  infoLog,
 		Spotify: &models.SpotifyModel{
@@ -106,7 +99,7 @@ func main() {
 	srv := &http.Server{
 		Addr:     ":" + strconv.FormatUint(8080, 10),
 		ErrorLog: app.ErrorLog,
-		Handler:  app.routes(mux),
+		Handler:  app.Routes(mux),
 	}
 
 	app.InfoLog.Printf("Starting server on http://localhost:%d", 8080)

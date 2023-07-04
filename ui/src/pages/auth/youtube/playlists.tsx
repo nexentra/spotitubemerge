@@ -15,20 +15,7 @@ function Playlists() {
         },
       });
       setData(JSON.parse(response.data.playlists));
-      console.log(JSON.parse(response.data.playlists))
-      let data1 = [];
-      let queryString = data1.join(",");
-      data.append(JSON.parse(response.data.playlists).items[10].id)
-      let response1 = await axios.get("/api/youtube-items", {
-        headers: {
-          Authorization: `${jsCookie.get("yt-token")}`,
-        },
-        params: {
-          strings: queryString,
-        },
-      });
-      console.log(JSON.parse(response.data));
-      console.log("response1",response1.data);
+      console.log(JSON.parse(response.data.playlists));
     } catch (error: any) {
       // setError(error.message);
     }
@@ -42,6 +29,26 @@ function Playlists() {
 
   return (
     <div className="container ">
+      <button
+        onClick={async () => {
+          let data1 = [];
+          data1.push(data.items[10].id);
+          let queryString = data1.join();
+          console.log("data1", data1);
+          console.log("queryString", queryString);
+          let response1 = await axios.get("/api/youtube-items", {
+            headers: {
+              Authorization: `${jsCookie.get("yt-token")}`,
+            },
+            params: {
+              strings: queryString,
+            },
+          });
+          console.log("response1", response1.data);
+        }}
+      >
+        test
+      </button>
       {data?.items?.map((item: any, key) => {
         return (
           <div key={key} className="flex flex-col items-center justify-center">
