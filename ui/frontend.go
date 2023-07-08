@@ -11,7 +11,7 @@ import (
 //go:embed all:dist
 var BuildFs embed.FS
 
-// Get the subtree of the embedded files with `build` directory as a root.
+// Get the subtree of the embedded files with `dist` directory as a root.
 func BuildHTTPFS() http.FileSystem {
 	build, err := fs.Sub(BuildFs, "dist")
 	if err != nil {

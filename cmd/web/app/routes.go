@@ -5,19 +5,20 @@ import (
 	"net/http"
 	// "runtime/pprof"
 
+	"github.com/justinas/alice"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	// "github.com/justinas/alice"
-	"github.com/nexentra/spotitubemerge/ui"
+	// "github.com/nexentra/spotitubemerge/ui"
 )
 func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	router := echo.New()
 	// router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
-	router.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-		Filesystem: frontend.BuildHTTPFS(),
-		HTML5:      true,
-	}))
+	// router.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+	// 	Filesystem: frontend.BuildHTTPFS(),
+	// 	HTML5:      true,
+	// }))
 	// router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 	// 	AllowOrigins: []string{"http://localhost:8080", "https://spotitubemerge.fly.dev"},
 	// 	AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete, http.MethodOptions},
@@ -43,9 +44,9 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	router.GET("/api/spotify-playlist", app.getSpotifyPlaylist)
 	router.GET("/api/spotify-items", app.getSpotifyItems)
 	router.GET("/api/search-spotify-items", app.searchSpotifyItems)
-	// standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
-	// return standard.Then(router)
-	return router
+	standard := alice.New(app.logRequest, secureHeaders)
+	return standard.Then(router)
+	// return router
 }
 
 

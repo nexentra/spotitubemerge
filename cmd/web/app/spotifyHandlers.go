@@ -89,6 +89,12 @@ func (app *Application) getSpotifyItems(c echo.Context) error {
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
 	strings := c.QueryParam("strings")
 	fmt.Println("strings: ", strings)
+
+	if strings == "" {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "strings is empty",
+		})
+	}
 	
 	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderType))
 
@@ -101,7 +107,6 @@ func (app *Application) getSpotifyItems(c echo.Context) error {
 	if err != nil {
 		app.ErrorLog.Print(err)
 	}
-	fmt.Println("playlist:", playlist)
 	for _, playlist := range playlist.Items {
 		fmt.Println("  ", playlist.Track)
 	}

@@ -9,7 +9,7 @@ function Callback() {
   const handleCallback = async () => {
     const code = router.query.code; // Get the code query parameter from the URL
     try {
-      const response = await axios.post("/api/auth/youtube/callback", { code });
+      const response = await axios.post("http://localhost:8080" + "/api/auth/youtube/callback", { code });
       let token = response.data.token
       if (token) {
         const expiryTime = response.data.token.expiry;
@@ -22,7 +22,7 @@ function Callback() {
         jsCookie.set("yt-token", JSON.stringify(response.data.token), {
           expires: hoursDiff,
         });
-        router.push("/auth/youtube/playlists");
+        router.push("/youtube/playlists");
       }
     } catch (error) {
       console.error("Error:", error);

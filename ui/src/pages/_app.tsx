@@ -3,7 +3,7 @@ import Script from "next/script";
 import Head from "next/head";
 import "../globals.css";
 
-function App({ Component, pageProps }:any) {
+function App({ Component, pageProps }: any) {
   return (
     <>
       <Head>
