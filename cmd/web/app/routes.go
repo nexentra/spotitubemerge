@@ -44,6 +44,8 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	router.GET("/api/spotify-playlist", app.getSpotifyPlaylist)
 	router.GET("/api/spotify-items", app.getSpotifyItems)
 	router.GET("/api/search-spotify-items", app.searchSpotifyItems)
+
+	router.POST("/api/merge-yt-spotify", app.mergeYtSpotify)
 	standard := alice.New(app.logRequest, secureHeaders)
 	return standard.Then(router)
 	// return router

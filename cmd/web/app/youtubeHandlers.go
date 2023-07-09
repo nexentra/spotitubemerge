@@ -61,22 +61,42 @@ func (app *Application) getYoutubePlaylist(c echo.Context) error {
 	var authHeaderType *oauth2.Token
 	authHeader := c.Request().Header.Get("Authorization")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
-	url := "https://www.googleapis.com/youtube/v3/playlists?part=snippet&contentDetails&maxResults=" + "25" + "&mine=true&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderType.AccessToken
-	fmt.Println("URL: ", url)
-	response, err := http.Get(url)
-	if err != nil {
-		fmt.Print(err.Error())
-	}
+	var nextPageToken string
+	var allResponseData []string
+	for {
+		url := "https://www.googleapis.com/youtube/v3/playlists?part=snippet&contentDetails" + "&maxResults=50" + "&mine=true&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderType.AccessToken
+		if nextPageToken != "" {
+			url += "&pageToken=" + nextPageToken
+		}
+		response, err := http.Get(url)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
 
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Print(err.Error())
-	}
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
 
-	app.InfoLog.Println(string(responseData))
+		var data map[string]interface{}
+		err = json.Unmarshal(responseData, &data)
+		if err != nil {
+			fmt.Println("Error parsing JSON response:", err)
+			break
+		}
+
+		allResponseData = append(allResponseData, string(responseData))
+
+		if _, ok := data["nextPageToken"]; ok {
+			nextPageToken = data["nextPageToken"].(string)
+		} else {
+			break
+		}
+
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"playlists": string(responseData),
+		"playlists": allResponseData,
 	})
 }
 

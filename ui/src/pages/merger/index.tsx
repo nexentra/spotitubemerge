@@ -65,6 +65,25 @@ function Playlists() {
     }
   }
 
+  const startMerger = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080" + "/api/merge-yt-spotify", {
+        "spotify-playlists": selectedItemsSpotify,
+        "youtube-playlists": selectedItemsYt
+       },
+      {
+        headers: {
+          AuthorizationSpotify: `${jsCookie.get("spotify-token")}`,
+          AuthorizationYoutube: `${jsCookie.get("yt-token")}`,
+        }
+      });
+      console.log(response,"response");
+    } catch (error) {
+      console.error("Error:", error);
+      // Handle the error appropriately
+    }
+  };
+
   useEffect(() => {
     if (router?.isReady) {
       fetchYoutubePlaylists();
@@ -79,6 +98,7 @@ function Playlists() {
 
   return (
     <div className="mx-5 md:mx-0 grid grid-cols-2 gap-4">
+      <button onClick={startMerger}>Start Merger</button>
       {youtubeData && (
         <div>
           <h2>YouTube Playlists</h2>
