@@ -199,3 +199,25 @@ func createPlaylist(client *http.Client, title string) (*youtube.Playlist, error
 
 	return response, nil
 }
+
+
+func searchVideoInYoutube(client *http.Client, artist, title string) (string, error) {
+	service, err := youtube.New(client)
+	if err != nil {
+		return "", err
+	}
+
+	query := artist + " " + title
+	call := service.Search.List([]string{"id"}).Q(query).Type("video").MaxResults(1)
+	response, err := call.Do()
+	if err != nil {
+		return "", err
+	}
+
+	if len(response.Items) == 0 {
+		return "", fmt.Errorf("No matching video found in YouTube")
+	}
+
+	videoID := response.Items[0].Id.VideoId
+	return videoID, nil
+}
