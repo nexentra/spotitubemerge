@@ -37,12 +37,12 @@ function Playlists() {
         "http://localhost:8080/api/youtube-playlist",
         {
           headers: {
-            Authorization: `${jsCookie.get("yt-token")}`,
+            AuthorizationYoutube: `${jsCookie.get("yt-token")}`,
           },
         }
       );
-      console.log(JSON.parse(response.data.playlists).items);
-      setYoutubeData(JSON.parse(response.data.playlists).items);
+      console.log(response.data.playlists);
+      setYoutubeData(response.data.playlists);
     } catch (error: any) {
       console.log(error);
     }

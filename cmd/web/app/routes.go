@@ -27,34 +27,21 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	// 	app.notFound(w)
 	// })
 
-	// router.Handler(http.MethodGet, "/", http.HandlerFunc(app.home))
-	router.GET("/hello.json", handleHello)
-	router.GET("/api", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, echo.Map{
-			"message": "hello from the echo server",
-		})
-	})
-	router.GET("/api/auth/youtube", app.loginYoutube)
-	router.POST("/api/auth/youtube/callback", app.callbackYoutube)
-	router.GET("/api/youtube-playlist", app.getYoutubePlaylist)
-	router.GET("/api/youtube-items", app.getYoutubeItems)
+	apiRoute := router.Group("/api")
+	apiRoute.GET("/auth/youtube", app.loginYoutube)
+	apiRoute.POST("/auth/youtube/callback", app.callbackYoutube)
+	apiRoute.GET("/youtube-playlist", app.getYoutubePlaylist, app.generateYoutubeClient)
+	apiRoute.GET("/youtube-items", app.getYoutubeItems, app.generateYoutubeClient)
 
-	router.GET("/api/auth/spotify", app.loginSpotify)
-	router.POST("/api/auth/spotify/callback", app.callbackSpotify)
-	router.GET("/api/spotify-playlist", app.getSpotifyPlaylist)
-	router.GET("/api/spotify-items", app.getSpotifyItems)
-	router.GET("/api/search-spotify-items", app.searchSpotifyItems)
+	apiRoute.GET("/auth/spotify", app.loginSpotify)
+	apiRoute.POST("/auth/spotify/callback", app.callbackSpotify)
+	apiRoute.GET("/spotify-playlist", app.getSpotifyPlaylist)
+	apiRoute.GET("/spotify-items", app.getSpotifyItems)
+	apiRoute.GET("/search-spotify-items", app.searchSpotifyItems)
 
-	router.POST("/api/merge-yt-spotify", app.mergeYtSpotify)
+	apiRoute.POST("/merge-yt-spotify", app.mergeYtSpotify,app.generateYoutubeClient)
+	apiRoute.POST("/mytest", app.createPlaylistHandler, app.generateYoutubeClient)
 	standard := alice.New(app.logRequest, secureHeaders)
 	return standard.Then(router)
 	// return router
-}
-
-
-
-func handleHello(c echo.Context) error {
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "hello from the echo server",
-	})
 }

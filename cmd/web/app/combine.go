@@ -1,14 +1,15 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	spotify "github.com/zmb3/spotify/v2"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/youtube/v3"
 )
 
 type MergerList struct {
@@ -39,6 +40,12 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 	//spotify client
 	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderTypeSpotify))
 
+	//get spotify user
+	user, err := client.CurrentUser(c.Request().Context())
+	if err != nil {
+		app.ErrorLog.Print(err)
+	}
+
 	//get spotify items
 	var allSpotifyTitles []spotify.PlaylistItemTrack
 	for _, playlist := range mergerList.SpotifyPlaylists {
@@ -53,84 +60,82 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 	}
 
 	fmt.Println("allSpotifyTitles: ", allSpotifyTitles)
-	for i, title := range allSpotifyTitles{
+	for i, title := range allSpotifyTitles {
 		fmt.Println("index: ", i)
 		fmt.Println("title: ", title.Track.Artists[0].Name)
 		fmt.Println("title: ", title.Track.Name)
 	}
 
 	//get youtube items
+	ytClient := c.Get("client").(*http.Client)
+	service, err := youtube.New(ytClient)
+	if err != nil {
+		return err
+	}
+
+	// Get YouTube items
 	var allYoutubeTitles []string
-	var nextPageToken string
 	for _, playlist := range mergerList.YoutubePlaylists {
+		call := service.PlaylistItems.List([]string{"snippet"}).
+			PlaylistId(playlist).
+			MaxResults(50)
+
+		var nextPageToken string
 		for {
-			url := "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=" + playlist + "&maxResults=50" + "&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderTypeYoutube.AccessToken
 			if nextPageToken != "" {
-				url += "&pageToken=" + nextPageToken
+				call.PageToken(nextPageToken)
 			}
 
-			response, err := http.Get(url)
+			response, err := call.Do()
 			if err != nil {
 				fmt.Print(err.Error())
 				break
 			}
 
-			responseData, err := ioutil.ReadAll(response.Body)
-			if err != nil {
-				fmt.Print(err.Error())
-				break
+			for _, item := range response.Items {
+				title := item.Snippet.Title
+				allYoutubeTitles = append(allYoutubeTitles, title)
 			}
 
-			var data map[string]interface{}
-			err = json.Unmarshal(responseData, &data)
-			if err != nil {
-				fmt.Println("Error parsing JSON response:", err)
-				break
-			}
-
-			// Extract the 'items' field as a slice of interface{} from the 'data' map.
-			items, ok := data["items"].([]interface{})
-			if !ok {
-				fmt.Println("Invalid 'items' field in the response")
-				break
-			}
-
-			// Iterate over each item in the 'items' slice.
-			for _, item := range items {
-				// Type assert the item as a map[string]interface{}.
-				itemMap, ok := item.(map[string]interface{})
-				if !ok {
-					fmt.Println("Invalid item format in the response")
-					continue
-				}
-
-				// Access the 'snippet' field as a map[string]interface{}.
-				snippet, ok := itemMap["snippet"].(map[string]interface{})
-				if !ok {
-					fmt.Println("Invalid 'snippet' field in the item")
-					continue
-				}
-
-				// Access the 'title' field under 'snippet'.
-				title, ok := snippet["title"].(string)
-				if !ok {
-					fmt.Println("Invalid 'title' field in the snippet")
-					continue
-				}
-
-			allYoutubeTitles = append(allYoutubeTitles, string(title))
-			}
-			if _, ok := data["nextPageToken"]; ok {
-				nextPageToken = data["nextPageToken"].(string)
-			} else {
+			nextPageToken = response.NextPageToken
+			if nextPageToken == "" {
 				break
 			}
 		}
 	}
 
-	for i, title := range allYoutubeTitles{
+	// Create a new spotify playlist
+	newPlaylist, err := client.CreatePlaylistForUser(context.Background(), user.ID, "testPlaylist", "New playlist for searched tracks", false, false)
+	if err != nil {
+		fmt.Println("Error creating playlist:", err)
+	}
+
+	// Add tracks to the spotify playlist
+	for i, title := range allYoutubeTitles {
 		fmt.Println("index: ", i)
 		fmt.Println("title: ", title)
+
+		// Search for the video in Spotify
+		results, err := client.Search(context.Background(), title, spotify.SearchTypeTrack)
+		if err != nil {
+			fmt.Println("Error searching for video:", err)
+			continue
+		}
+
+		// Get the first track from the search results
+		if len(results.Tracks.Tracks) > 0 {
+			firstTrack := results.Tracks.Tracks[0]
+
+			// Add the track to the newly created playlist
+			_, err := client.AddTracksToPlaylist(context.Background(), newPlaylist.ID, firstTrack.ID)
+			if err != nil {
+				fmt.Println("Error adding track to playlist:", err)
+			} else {
+				fmt.Println("Track added to playlist:", firstTrack.Name)
+			}
+		} else {
+			fmt.Println("No matching track found in Spotify")
+		}
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{

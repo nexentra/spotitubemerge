@@ -4,28 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"net/http"
+	// "time"
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/youtube/v3"
 )
 
-// func (app *Application) home(c echo.Context) error {
-// 	// snippets, err := app.Snippets.Latest()
-// 	// if err != nil {
-// 	// 	app.serverError(w, err)
-// 	// 	return
-// 	// }
-// 	// data := app.newTemplateData(r)
-// 	// data.Snippets = snippets
-
-// 	// app.render(w, http.StatusOK, "home.html", data)
-
-// }
-
 func (app *Application) loginYoutube(c echo.Context) error {
-	authURL := app.Youtube.Config.AuthCodeURL(app.Youtube.State, oauth2.AccessTypeOnline)
+	authURL := app.Youtube.Config.AuthCodeURL(app.Youtube.State, oauth2.AccessTypeOffline)
 	fmt.Println("Auth URL: ", authURL)
 	// c.Redirect(http.StatusMovedPermanently, authURL)
 	return c.JSON(http.StatusOK, echo.Map{
@@ -58,41 +47,31 @@ func (app *Application) callbackYoutube(c echo.Context) error {
 }
 
 func (app *Application) getYoutubePlaylist(c echo.Context) error {
-	var authHeaderType *oauth2.Token
-	authHeader := c.Request().Header.Get("Authorization")
-	json.Unmarshal([]byte(authHeader), &authHeaderType)
-	var nextPageToken string
-	var allResponseData []string
+	client := c.Get("client").(*http.Client)
+	service, err := youtube.New(client)
+	if err != nil {
+		return err
+	}
+
+	call := service.Playlists.List([]string{"snippet,contentDetails"}).
+		MaxResults(50).
+		Mine(true)
+
+	var allResponseData []*youtube.Playlist
+
 	for {
-		url := "https://www.googleapis.com/youtube/v3/playlists?part=snippet&contentDetails" + "&maxResults=50" + "&mine=true&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderType.AccessToken
-		if nextPageToken != "" {
-			url += "&pageToken=" + nextPageToken
-		}
-		response, err := http.Get(url)
+		response, err := call.Do()
 		if err != nil {
-			fmt.Print(err.Error())
+			return err
 		}
 
-		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Print(err.Error())
-		}
+		allResponseData = append(allResponseData, response.Items...)
 
-		var data map[string]interface{}
-		err = json.Unmarshal(responseData, &data)
-		if err != nil {
-			fmt.Println("Error parsing JSON response:", err)
+		if response.NextPageToken == "" {
 			break
 		}
 
-		allResponseData = append(allResponseData, string(responseData))
-
-		if _, ok := data["nextPageToken"]; ok {
-			nextPageToken = data["nextPageToken"].(string)
-		} else {
-			break
-		}
-
+		call.PageToken(response.NextPageToken)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -109,25 +88,114 @@ func (app *Application) getYoutubeItems(c echo.Context) error {
 	authHeader := c.Request().Header.Get("Authorization")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
 
-	strings := c.QueryParam("strings")
-	fmt.Println("strings: ", strings)
+	playlistID := c.QueryParam("strings")
+	fmt.Println("playlistID: ", playlistID)
 
-	url := "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&contentDetails&playlistId=" + strings + "&maxResults=" + "25" + "&key=" + app.Youtube.Config.ClientID + "&access_token=" + authHeaderType.AccessToken
-
-	fmt.Println("URL: ", url)
-	response, err := http.Get(url)
+	client := c.Get("client").(*http.Client)
+	service, err := youtube.New(client)
 	if err != nil {
-		fmt.Print(err.Error())
+		return err
 	}
 
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Print(err.Error())
-	}
+	call := service.PlaylistItems.List([]string{"snippet,contentDetails"}).
+		PlaylistId(playlistID).
+		MaxResults(25)
 
-	// fmt.Println("Response: ", string(responseData))
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"items": []string{string(responseData)},
+		"items": response.Items,
 	})
+}
+
+
+
+
+
+
+
+func (app *Application) createPlaylistHandler(c echo.Context)error {
+	fmt.Println("Create Playlist")
+
+	client := c.Get("client").(*http.Client)
+
+	playlist, err := createPlaylist(client, "My Private Playlist 2")
+	if err != nil {
+		log.Fatalf("Error creating playlist: %v", err)
+	}
+
+	fmt.Println(playlist, "playlist")
+
+	err = addVideoToPlaylist(client, playlist.Id, "un6ZyFkqFKo")
+	if err != nil {
+		log.Fatalf("Error adding video to playlist: %v", err)
+	}
+
+	err = addVideoToPlaylist(client, playlist.Id, "mWi9SGKRpys")
+	if err != nil {
+		log.Fatalf("Error adding video to playlist: %v", err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"playlist": "playlist",
+	})
+	
+}
+
+
+
+
+func addVideoToPlaylist(client *http.Client, playlistID string, videoID string) error {
+	service, err := youtube.New(client)
+	if err != nil {
+		return err
+	}
+
+	playlistItem := &youtube.PlaylistItem{
+		Snippet: &youtube.PlaylistItemSnippet{
+			PlaylistId: playlistID,
+			ResourceId: &youtube.ResourceId{
+				Kind:    "youtube#video",
+				VideoId: videoID,
+			},
+		},
+	}
+
+	call := service.PlaylistItems.Insert([]string{"snippet"}, playlistItem)
+	_, err = call.Do()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+
+func createPlaylist(client *http.Client, title string) (*youtube.Playlist, error) {
+	service, err := youtube.New(client)
+	if err != nil {
+		return nil, err
+	}
+
+	playlist := &youtube.Playlist{
+		Snippet: &youtube.PlaylistSnippet{
+			Title:       title,
+			Description: "Private playlist created using the YouTube API v3",
+		},
+		Status: &youtube.PlaylistStatus{
+			PrivacyStatus: "private",
+		},
+	}
+
+	call := service.Playlists.Insert([]string{"snippet,status"}, playlist)
+	response, err := call.Do()
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }

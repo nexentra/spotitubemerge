@@ -64,7 +64,7 @@ func main() {
 		log.Printf("Unable to read client secret file: %v", err)
 	}
 
-	config, err := google.ConfigFromJSON(b, youtube.YoutubeReadonlyScope)
+	config, err := google.ConfigFromJSON(b, youtube.YoutubeScope)
 	if err != nil {
 		log.Printf("Unable to parse client secret file to config: %v", err)
 	}
@@ -75,12 +75,15 @@ func main() {
 			spotifyauth.ScopeUserReadPrivate,
 			spotifyauth.ScopePlaylistReadCollaborative,
 			spotifyauth.ScopePlaylistReadPrivate,
+			spotifyauth.ScopePlaylistModifyPublic,
+			spotifyauth.ScopePlaylistModifyPrivate,
+			
 		),
 		spotifyauth.WithClientID(envFile["SPOTIFY_CLIENT_ID"]),
 		spotifyauth.WithClientSecret(envFile["SPOTIFY_CLIENT_SECRET"]),
 	)
 
-	app := &app.Application{
+	application := &app.Application{
 		ErrorLog: errorLog,
 		InfoLog:  infoLog,
 		Spotify: &models.SpotifyModel{
@@ -98,11 +101,11 @@ func main() {
 
 	srv := &http.Server{
 		Addr:     ":" + strconv.FormatUint(8080, 10),
-		ErrorLog: app.ErrorLog,
-		Handler:  app.Routes(mux),
+		ErrorLog: application.ErrorLog,
+		Handler:  application.Routes(mux),
 	}
 
-	app.InfoLog.Printf("Starting server on http://localhost:%d", 8080)
+	application.InfoLog.Printf("Starting server on http://localhost:%d", 8080)
 	err = srv.ListenAndServe()
-	app.ErrorLog.Fatal(err)
+	application.ErrorLog.Fatal(err)
 }

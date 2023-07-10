@@ -2,7 +2,13 @@ package app
 
 import (
 	// "fmt"
+	"context"
+	"encoding/json"
 	"net/http"
+	"time"
+
+	"github.com/labstack/echo/v4"
+	"golang.org/x/oauth2"
 )
 
 func secureHeaders(next http.Handler) http.Handler {
@@ -24,6 +30,28 @@ func (app *Application) logRequest(next http.Handler) http.Handler {
 			r.URL.RequestURI())
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *Application) generateYoutubeClient(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var authHeaderType *oauth2.Token
+		authHeader := c.Request().Header.Get("AuthorizationYoutube")
+		json.Unmarshal([]byte(authHeader), &authHeaderType)
+		ctx := context.Background()
+
+		token := &oauth2.Token{
+			AccessToken:  authHeaderType.AccessToken,
+			TokenType:    "Bearer",
+			RefreshToken: authHeaderType.RefreshToken,
+			Expiry:       time.Now().Add(time.Hour),
+		}
+
+		client := app.Youtube.Config.Client(ctx, token)
+
+		c.Set("client", client)
+
+		return next(c)
+	}
 }
 
 // func (app *Application) recoverPanic(next http.Handler) http.Handler {

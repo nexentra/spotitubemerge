@@ -27,8 +27,8 @@ function Playlists() {
           },
         }
       );
-      console.log(JSON.parse(response.data.playlists).items);
-      setData(JSON.parse(response.data.playlists).items);
+      console.log(response.data.playlists);
+      setData(response.data.playlists);
     } catch (error: any) {
       console.log(error);
     }
