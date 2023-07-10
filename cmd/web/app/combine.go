@@ -138,6 +138,20 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 		}
 	}
 
+	for i, title := range allSpotifyTitles {
+		fmt.Println("index: ", i)
+		fmt.Println("title: ", title.Track.Artists[0].Name)
+
+			// Add the track to the newly created playlist
+			_, err := client.AddTracksToPlaylist(context.Background(), newPlaylist.ID, title.Track.ID)
+			if err != nil {
+				fmt.Println("Error adding track to playlist:", err)
+			} else {
+				fmt.Println("Track added to playlist:", title.Track.Name)
+			}
+		
+	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"items": allYoutubeTitles,
 	})
