@@ -186,31 +186,3 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 		"items": allYoutubeTitles,
 	})
 }
-
-// func (app *Application) searchSpotifyItems(c echo.Context) error {
-// 	var authHeaderType *oauth2.Token
-// 	authHeader := c.Request().Header.Get("Authorization")
-// 	json.Unmarshal([]byte(authHeader), &authHeaderType)
-
-// 	strings := c.QueryParam("strings")
-// 	fmt.Println("strings: ", strings)
-
-// 	// searching tracks with given name
-// 	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderType))
-// 	results, err := client.Search(c.Request().Context(), strings, spotify.SearchTypeTrack) //spotify.SearchTypePlaylist|spotify.SearchTypeAlbum
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("results:", results)
-
-// 	// handle songs results
-// 	if results.Tracks != nil {
-// 		return c.JSON(http.StatusOK, echo.Map{
-// 			"items": results.Tracks.Tracks,
-// 		})
-// 	}
-
-// 	return c.JSON(http.StatusOK, echo.Map{
-// 		"items": []string{},
-// 	})
-// }

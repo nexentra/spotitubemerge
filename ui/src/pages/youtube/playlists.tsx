@@ -23,7 +23,7 @@ function Playlists() {
         "http://localhost:8080" + "/api/youtube-playlist",
         {
           headers: {
-            Authorization: `${jsCookie.get("yt-token")}`,
+            AuthorizationYoutube: `${jsCookie.get("yt-token")}`,
           },
         }
       );

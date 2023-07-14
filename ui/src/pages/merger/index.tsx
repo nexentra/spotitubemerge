@@ -41,8 +41,8 @@ function Playlists() {
           },
         }
       );
-      console.log(response.data.playlists);
-      setYoutubeData(response.data.playlists);
+      console.log(response?.data?.playlists);
+      setYoutubeData(response?.data?.playlists);
     } catch (error: any) {
       console.log(error);
     }
@@ -58,8 +58,8 @@ function Playlists() {
           },
         }
       );
-      console.log(response.data);
-      setSpotifyData(response.data);
+      console.log(response?.data);
+      setSpotifyData(response?.data);
     } catch (error: any) {
       console.log(error);
     }

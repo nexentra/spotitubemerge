@@ -5,7 +5,7 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const allItemNames = data.map((item: any) => item.id);
+      const allItemNames = data.map((item: any) => item?.id);
       setSelectedItems(allItemNames);
     } else {
       setSelectedItems([]);
@@ -78,8 +78,8 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
                       id={`checkbox-table-search-${index}`}
                       type="checkbox"
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                      value={item.id}
-                      checked={selectedItems.includes(item.id)}
+                      value={item?.id}
+                      checked={selectedItems.includes(item?.id)}
                       onChange={handleSelectItem}
                     />
                     <label
@@ -91,23 +91,23 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
                   </div>
                 </td>
                 <td className="w-32">
-                  <img src={item.images[0].url} alt="Apple Watch" />
+                  <img src={item?.images[0]?.url} alt="Apple Watch" />
                 </td>
                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                  {item.name}
+                  {item?.name}
                 </td>
                 {!mergerPage && (
                   <>
                     <td
                       className="px-6 py-4 text-ellipsis m-w-[300px]"
-                      dangerouslySetInnerHTML={{ __html: item.description }}
+                      dangerouslySetInnerHTML={{ __html: item?.description }}
                     ></td>
                     <td className="px-6 py-4">
                       <a
-                        href={item.external_urls.spotify}
+                        href={item?.external_urls?.spotify}
                         className="text-blue-600 hover:underline"
                       >
-                        {item.external_urls.spotify}
+                        {item?.external_urls?.spotify}
                       </a>
                     </td>
                   </>

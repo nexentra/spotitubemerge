@@ -5,7 +5,7 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const allItemNames = data.map((item: any) => item.id);
+      const allItemNames = data.map((item: any) => item?.id);
       setSelectedItems(allItemNames);
     } else {
       setSelectedItems([]);
@@ -72,8 +72,8 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
                       id={`checkbox-table-search-${index}`}
                       type="checkbox"
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                      value={item.id}
-                      checked={selectedItems.includes(item.id)}
+                      value={item?.id}
+                      checked={selectedItems.includes(item?.id)}
                       onChange={handleSelectItem}
                     />
                     <label
@@ -86,18 +86,18 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
                 </td>
                 <td className="w-32">
                   <img
-                    src={item.snippet.thumbnails.default.url}
+                    src={item?.snippet?.thumbnails?.default?.url}
                     alt="Apple Watch"
                   />
                 </td>
                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                  {item.snippet.localized.title}
+                  {item?.snippet?.localized?.title}
                 </td>
                 {!mergerPage && (
                   <td
                     className="px-6 py-4 text-ellipsis m-w-[300px]"
                     dangerouslySetInnerHTML={{
-                      __html: item.snippet.localized.description,
+                      __html: item?.snippet?.localized?.description,
                     }}
                   ></td>
                 )}

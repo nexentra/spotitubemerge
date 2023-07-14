@@ -38,3 +38,7 @@ docker-rebuild:
 run-log:
 	# go run ./cmd/web >>tmp/info.log 2>>tmp/error.log
 	go run ./cmd/web -log
+
+
+run-lint:
+	golangci-lint run --enable-all 
