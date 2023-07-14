@@ -2,10 +2,14 @@ package app
 
 import (
 	// "log"
+	"errors"
+	"log"
 	"net/http"
+
 	// "runtime/pprof"
 
 	"github.com/justinas/alice"
+	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	// "github.com/justinas/alice"
@@ -15,6 +19,17 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	router := echo.New()
 	// router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
+
+	router.Use(echoprometheus.NewMiddleware("spotitubemerge"))
+
+    go func() {
+        metrics := echo.New()
+        metrics.GET("/metrics", echoprometheus.NewHandler())
+        if err := metrics.Start(":8081"); err != nil && !errors.Is(err, http.ErrServerClosed) {
+            log.Fatal(err)
+        }
+    }()
+
 	// router.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 	// 	Filesystem: frontend.BuildHTTPFS(),
 	// 	HTML5:      true,
