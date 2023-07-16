@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+
+rule_files:
+
+scrape_configs:
+- job_name: 'web'
+  static_configs:
+  - targets: ['web:8081']

@@ -24,16 +24,19 @@ build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/web
 
 docker-up:
-	docker-compose up --build
+	docker compose up --build
 
 docker-down:
-	docker-compose down
+	docker compose down
+
+web-up:
+	docker compose up -d web
 
 db-up:
-	docker-compose up -d db
+	docker compose up -d db
 
 docker-rebuild:
-	docker-compose down --volumes && docker-compose up --build
+	docker compose down --volumes && docker compose up --build
 
 run-log:
 	# go run ./cmd/web >>tmp/info.log 2>>tmp/error.log

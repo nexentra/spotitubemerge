@@ -98,6 +98,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	prometheusMux := http.NewServeMux()
 
 	srv := &http.Server{
 		Addr:     ":" + strconv.FormatUint(8080, 10),
@@ -105,7 +106,23 @@ func main() {
 		Handler:  application.Routes(mux),
 	}
 
+	prometheusSrv := &http.Server{
+		Addr:     ":" + strconv.FormatUint(8081, 10),
+		ErrorLog: application.ErrorLog,
+		Handler:  application.PrometheusRoutes(prometheusMux),
+	}
+
+go func(){
 	application.InfoLog.Printf("Starting server on http://localhost:%d", 8080)
 	err = srv.ListenAndServe()
 	application.ErrorLog.Fatal(err)
+}()
+
+go func(){
+	application.InfoLog.Printf("Starting server on http://localhost:%d", 8081)
+	err = prometheusSrv.ListenAndServe()
+	application.ErrorLog.Fatal(err)
+}()
+
+select {}
 }

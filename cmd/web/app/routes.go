@@ -1,15 +1,12 @@
 package app
 
 import (
-	// "log"
-	"errors"
-	"log"
-	"net/http"
 
+	"net/http"
 	// "runtime/pprof"
 
 	"github.com/justinas/alice"
-	"github.com/labstack/echo-contrib/echoprometheus"
+	// "github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	// "github.com/justinas/alice"
@@ -20,20 +17,17 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	// router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
 
-	router.Use(echoprometheus.NewMiddleware("spotitubemerge"))
+	router.GET("/devices", getDevices)
+	router.POST("/devices", createDevice)
+	router.PUT("/devices/:id", upgradeDevice)
+	router.GET("/login", login, loginMiddleware)
 
-    go func() {
-        metrics := echo.New()
-        metrics.GET("/metrics", echoprometheus.NewHandler())
-        if err := metrics.Start(":8081"); err != nil && !errors.Is(err, http.ErrServerClosed) {
-            log.Fatal(err)
-        }
-    }()
-
+	// Middleware for bundling frontend into binary
 	// router.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 	// 	Filesystem: frontend.BuildHTTPFS(),
 	// 	HTML5:      true,
 	// }))
+
 	// router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 	// 	AllowOrigins: []string{"http://localhost:8080", "https://spotitubemerge.fly.dev"},
 	// 	AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete, http.MethodOptions},
@@ -54,7 +48,7 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	apiRoute.GET("/spotify-items", app.getSpotifyItems)
 	apiRoute.GET("/search-spotify-items", app.searchSpotifyItems)
 
-	apiRoute.POST("/merge-yt-spotify", app.mergeYtSpotify,app.generateYoutubeClient)
+	apiRoute.POST("/merge-yt-spotify", app.mergeYtSpotify, app.generateYoutubeClient)
 	apiRoute.POST("/mytest", app.createPlaylistHandler, app.generateYoutubeClient)
 	standard := alice.New(app.logRequest, secureHeaders)
 	return standard.Then(router)
