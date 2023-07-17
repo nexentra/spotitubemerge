@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/justinas/alice"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus"
@@ -103,8 +102,9 @@ func (app *Application) PrometheusRoutes(mux *http.ServeMux) http.Handler {
 	// router.Use(echoprometheus.NewMiddleware("spotitubemerge"))
 	router.GET("/metrics", echo.WrapHandler(promHandler))
 
-	standard := alice.New(app.logRequest, secureHeaders)
-	return standard.Then(router)
+	// standard := alice.New(app.logRequest, secureHeaders)
+	// return standard.Then(router)
+	return router
 }
 
 func getDevices(c echo.Context) error {

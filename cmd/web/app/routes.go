@@ -1,21 +1,24 @@
 package app
 
 import (
-
 	"net/http"
 	// "runtime/pprof"
 
-	"github.com/justinas/alice"
+	// "github.com/justinas/alice"
 	// "github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/nexentra/spotitubemerge/internal/combine"
+	spotifyplaylist "github.com/nexentra/spotitubemerge/internal/spotify_playlist"
+	ytplaylist "github.com/nexentra/spotitubemerge/internal/yt_playlist"
 	// "github.com/justinas/alice"
 	// "github.com/nexentra/spotitubemerge/ui"
 )
 func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	router := echo.New()
-	// router.Use(middleware.Logger())
+	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
+	router.Use(secureHeaders)
 
 	router.GET("/devices", getDevices)
 	router.POST("/devices", createDevice)
@@ -37,20 +40,28 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	// })
 
 	apiRoute := router.Group("/api")
-	apiRoute.GET("/auth/youtube", app.loginYoutube)
-	apiRoute.POST("/auth/youtube/callback", app.callbackYoutube)
-	apiRoute.GET("/youtube-playlist", app.getYoutubePlaylist, app.generateYoutubeClient)
-	apiRoute.GET("/youtube-items", app.getYoutubeItems, app.generateYoutubeClient)
+	
 
-	apiRoute.GET("/auth/spotify", app.loginSpotify)
-	apiRoute.POST("/auth/spotify/callback", app.callbackSpotify)
-	apiRoute.GET("/spotify-playlist", app.getSpotifyPlaylist)
-	apiRoute.GET("/spotify-items", app.getSpotifyItems)
-	apiRoute.GET("/search-spotify-items", app.searchSpotifyItems)
+	spotifyplaylist.RegisterHandlers(apiRoute, app.Spotify.Authenticator, app.Spotify.RedirectURI, app.Spotify.State, app.ErrorLog, app.InfoLog, app.Env)
+	ytplaylist.RegisterHandlers(apiRoute, app.Youtube.Config, app.Youtube.State, app.ErrorLog, app.InfoLog, app.Env)
+	combine.RegisterHandlers(apiRoute,app.Spotify.Authenticator,  app.Youtube.Config, app.ErrorLog, app.InfoLog, app.Env)
 
-	apiRoute.POST("/merge-yt-spotify", app.mergeYtSpotify, app.generateYoutubeClient)
-	apiRoute.POST("/mytest", app.createPlaylistHandler, app.generateYoutubeClient)
-	standard := alice.New(app.logRequest, secureHeaders)
-	return standard.Then(router)
-	// return router
+	// apiRoute.POST("/mytest", app.createPlaylistHandler, app.generateYoutubeClient)
+	// standard := alice.New(app.logRequest, secureHeaders)
+	// return standard.Then(router)
+	return router
+}
+
+
+func secureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com")
+		c.Response().Header().Set("Referrer-Policy", "origin-when-cross-origin")
+		c.Response().Header().Set("Access-Control-Allow-Origin", "*")
+		c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, AuthorizationYoutube, AuthorizationSpotify, X-Requested-With")
+		c.Response().Header().Set("X-Content-Type-Options", "nosniff")
+		c.Response().Header().Set("X-Frame-Options", "deny")
+		c.Response().Header().Set("X-XSS-Protection", "0")
+		return next(c)
+	}
 }

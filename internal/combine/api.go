@@ -1,27 +1,55 @@
-package app
+package combine
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/nexentra/spotitubemerge/internal/middleware"
+	"github.com/nexentra/spotitubemerge/internal/yt_playlist"
 	spotify "github.com/zmb3/spotify/v2"
+	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/youtube/v3"
 )
+
+func RegisterHandlers(r *echo.Group, authenticator *spotifyauth.Authenticator, config *oauth2.Config, errorLog *log.Logger, infoLog *log.Logger, env map[string]string) {
+	res := Resource{
+		Authenticator: authenticator,
+		ErrorLog: errorLog,
+		InfoLog: infoLog,
+		Env: env,
+	}
+
+	resConfig := middleware.Resource{
+		Config: config,
+	}
+
+	r.POST("/merge-yt-spotify", res.mergeYtSpotify, resConfig.GenerateYoutubeClient)
+}
+
 
 type MergerList struct {
 	YoutubePlaylists []string `json:"youtube-playlists"`
 	SpotifyPlaylists []string `json:"spotify-playlists"`
 }
 
-func (app *Application) mergeYtSpotify(c echo.Context) error {
+type Resource struct {
+	Authenticator *spotifyauth.Authenticator
+	ErrorLog      *log.Logger
+	InfoLog       *log.Logger
+	Env           map[string]string
+}
+
+
+func (r Resource) mergeYtSpotify(c echo.Context) error {
 	//get data
 	mergerList := MergerList{}
 	if err := c.Bind(&mergerList); err != nil {
-		app.ErrorLog.Printf("Failed to bind code: %v", err)
+		r.ErrorLog.Printf("Failed to bind code: %v", err)
 	}
 
 	//get auth headers items
@@ -38,12 +66,12 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 	}
 
 	//spotify client
-	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderTypeSpotify))
+	client := spotify.New(r.Authenticator.Client(c.Request().Context(), authHeaderTypeSpotify))
 
 	//get spotify user
 	user, err := client.CurrentUser(c.Request().Context())
 	if err != nil {
-		app.ErrorLog.Print(err)
+		r.ErrorLog.Print(err)
 	}
 
 	//get spotify items
@@ -51,7 +79,7 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 	for _, playlist := range mergerList.SpotifyPlaylists {
 		playlistItems, err := client.GetPlaylistItems(c.Request().Context(), spotify.ID(playlist))
 		if err != nil {
-			app.ErrorLog.Print(err)
+			r.ErrorLog.Print(err)
 		}
 		for _, playlistItems := range playlistItems.Items {
 			allSpotifyTitles = append(allSpotifyTitles, playlistItems.Track)
@@ -113,7 +141,7 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 		fmt.Println("Error creating playlist:", err)
 	}
 
-	newYoutubePlaylist, err := createPlaylist(ytClient, "testPlaylist")
+	newYoutubePlaylist, err := ytplaylist.CreatePlaylist(ytClient, "testPlaylist")
 	if err != nil {
 		fmt.Println("Error creating playlist: ", err)
 	}
@@ -146,7 +174,7 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 		}
 
 		// Add the video to the youtube playlist
-		err = addVideoToPlaylist(ytClient, newYoutubePlaylist.Id, items.Id)
+		err = ytplaylist.AddVideoToPlaylist(ytClient, newYoutubePlaylist.Id, items.Id)
 		if err != nil {
 			fmt.Println("Error adding video to playlist: ", err)
 		} else {
@@ -166,14 +194,14 @@ func (app *Application) mergeYtSpotify(c echo.Context) error {
 		}
 
 		// Search for the track in YouTube
-		videoID, err := searchVideoInYoutube(ytClient, title.Track.Artists[0].Name, title.Track.Name)
+		videoID, err := ytplaylist.SearchVideoInYoutube(ytClient, title.Track.Artists[0].Name, title.Track.Name)
 		if err != nil {
 			fmt.Println("Error searching for track in YouTube:", err)
 			continue
 		}
 
 		// Add the video to the YouTube playlist
-		err = addVideoToPlaylist(ytClient, newYoutubePlaylist.Id, videoID)
+		err = ytplaylist.AddVideoToPlaylist(ytClient, newYoutubePlaylist.Id, videoID)
 		if err != nil {
 			fmt.Println("Error adding video to YouTube playlist: ", err)
 		} else {

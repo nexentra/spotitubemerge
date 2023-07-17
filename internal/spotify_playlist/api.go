@@ -1,77 +1,104 @@
-package app
+package spotifyplaylist
 
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
 	spotify "github.com/zmb3/spotify/v2"
+	spotifyauth "github.com/zmb3/spotify/v2/auth"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 )
 
+func RegisterHandlers(r *echo.Group, authenticator *spotifyauth.Authenticator, redirectURI string, state string, errorLog *log.Logger, infoLog *log.Logger, env map[string]string) {
+	res := Resource{
+		Authenticator: authenticator,
+		RedirectURI:   redirectURI,
+		State:         state,
+		ErrorLog:      errorLog,
+		InfoLog:       infoLog,
+		Env:           env,
+	}
 
+	r.GET("/auth/spotify", res.loginSpotify)
+	r.POST("/auth/spotify/callback", res.callbackSpotify)
+	r.GET("/spotify-playlist", res.getSpotifyPlaylist)
+	r.GET("/spotify-items", res.getSpotifyItems)
+	r.GET("/search-spotify-items", res.searchSpotifyItems)
+}
 
-func (app *Application) loginSpotify(c echo.Context) error {
-	authURL := app.Spotify.Authenticator.AuthURL(app.Spotify.State)
+type Resource struct {
+	Authenticator *spotifyauth.Authenticator
+	Client        *spotify.Client
+	RedirectURI   string
+	State         string
+	UserId        string
+	ErrorLog      *log.Logger
+	InfoLog       *log.Logger
+	Env           map[string]string
+}
+
+func (r Resource) loginSpotify(c echo.Context) error {
+	authURL := r.Authenticator.AuthURL(r.State)
 	fmt.Println("Auth URL: ", authURL)
 	return c.JSON(http.StatusOK, echo.Map{
 		"authUrl": authURL,
 	})
 }
 
-
 type SpotifyCode struct {
 	Code string `json:"code"`
 }
 
-func (app *Application) callbackSpotify(c echo.Context) error {
+func (r Resource) callbackSpotify(c echo.Context) error {
 	spotifyCode := SpotifyCode{}
 	if err := c.Bind(&spotifyCode); err != nil {
-		app.ErrorLog.Printf("Failed to bind code: %v", err)
+		r.ErrorLog.Printf("Failed to bind code: %v", err)
 	}
 	fmt.Println("Code: ", spotifyCode.Code)
 
-	// state := app.Spotify.State
-	tok, err := app.Spotify.Authenticator.Exchange(c.Request().Context(), spotifyCode.Code)
+	// state := r.State
+	tok, err := r.Authenticator.Exchange(c.Request().Context(), spotifyCode.Code)
 	if err != nil {
-		app.ErrorLog.Print(err)
+		r.ErrorLog.Print(err)
 	}
 	fmt.Println("Token: ", tok)
 
 	// if st := c.FormValue("state"); st != state {
-	// 	app.ErrorLog.Printf("State mismatch: %s != %s\n", st, state)
+	// 	r.ErrorLog.Printf("State mismatch: %s != %s\n", st, state)
 	// }
 
-	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), tok))
+	client := spotify.New(r.Authenticator.Client(c.Request().Context(), tok))
 	fmt.Println("Client: ", client)
-	app.Spotify.Client = client
+	r.Client = client
 
-	user, err := app.Spotify.Client.CurrentUser(c.Request().Context())
+	user, err := r.Client.CurrentUser(c.Request().Context())
 	if err != nil {
-		app.ErrorLog.Print(err)
+		r.ErrorLog.Print(err)
 	}
-	app.Spotify.UserId = user.ID
+	r.UserId = user.ID
 	fmt.Println("You are logged in as:", user.ID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": tok,
 	})
 }
 
-func (app *Application) getSpotifyPlaylist(c echo.Context) error {
+func (r Resource) getSpotifyPlaylist(c echo.Context) error {
 	var authHeaderType *oauth2.Token
 	authHeader := c.Request().Header.Get("Authorization")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
-	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderType))
+	client := spotify.New(r.Authenticator.Client(c.Request().Context(), authHeaderType))
 
 	user, err := client.CurrentUser(c.Request().Context())
 	if err != nil {
-		app.ErrorLog.Print(err)
+		r.ErrorLog.Print(err)
 	}
 
 	playlists, err := client.GetPlaylistsForUser(c.Request().Context(), user.ID)
 	if err != nil {
-		app.ErrorLog.Print(err)
+		r.ErrorLog.Print(err)
 	}
 	fmt.Println("Playlists:", playlists)
 	for _, playlist := range playlists.Playlists {
@@ -83,7 +110,7 @@ func (app *Application) getSpotifyPlaylist(c echo.Context) error {
 	})
 }
 
-func (app *Application) getSpotifyItems(c echo.Context) error {
+func (r Resource) getSpotifyItems(c echo.Context) error {
 	var authHeaderType *oauth2.Token
 	authHeader := c.Request().Header.Get("Authorization")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
@@ -95,17 +122,17 @@ func (app *Application) getSpotifyItems(c echo.Context) error {
 			"error": "strings is empty",
 		})
 	}
-	
-	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderType))
+
+	client := spotify.New(r.Authenticator.Client(c.Request().Context(), authHeaderType))
 
 	// user, err := client.CurrentUser(c.Request().Context())
 	// if err != nil {
-	// 	app.ErrorLog.Print(err)
+	// 	r.ErrorLog.Print(err)
 	// }
 
 	playlist, err := client.GetPlaylistItems(c.Request().Context(), spotify.ID(strings))
 	if err != nil {
-		app.ErrorLog.Print(err)
+		r.ErrorLog.Print(err)
 	}
 	for _, playlist := range playlist.Items {
 		fmt.Println("  ", playlist.Track)
@@ -116,8 +143,7 @@ func (app *Application) getSpotifyItems(c echo.Context) error {
 	})
 }
 
-
-func (app *Application) searchSpotifyItems(c echo.Context) error {
+func (r Resource) searchSpotifyItems(c echo.Context) error {
 	var authHeaderType *oauth2.Token
 	authHeader := c.Request().Header.Get("Authorization")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
@@ -126,7 +152,7 @@ func (app *Application) searchSpotifyItems(c echo.Context) error {
 	fmt.Println("strings: ", strings)
 
 	// searching tracks with given name
-	client := spotify.New(app.Spotify.Authenticator.Client(c.Request().Context(), authHeaderType))
+	client := spotify.New(r.Authenticator.Client(c.Request().Context(), authHeaderType))
 	results, err := client.Search(c.Request().Context(), strings, spotify.SearchTypeTrack) //spotify.SearchTypePlaylist|spotify.SearchTypeAlbum
 	if err != nil {
 		fmt.Println(err)
