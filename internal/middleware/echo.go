@@ -1,29 +1,15 @@
-package app
+package middleware
 
 import (
-	"net/http"
-	// "runtime/pprof"
-
-	// "github.com/justinas/alice"
-	// "github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/nexentra/spotitubemerge/internal/combine"
-	spotifyplaylist "github.com/nexentra/spotitubemerge/internal/spotify_playlist"
-	ytplaylist "github.com/nexentra/spotitubemerge/internal/yt_playlist"
-	// "github.com/justinas/alice"
 	// "github.com/nexentra/spotitubemerge/ui"
 )
-func (app *Application) Routes(mux *http.ServeMux) http.Handler {
-	router := echo.New()
-	router.Use(middleware.Logger())
-	router.Use(middleware.Recover())
-	router.Use(secureHeaders)
 
-	router.GET("/devices", getDevices)
-	router.POST("/devices", createDevice)
-	router.PUT("/devices/:id", upgradeDevice)
-	router.GET("/login", login, loginMiddleware)
+func EchoMiddleware(r *echo.Echo) {
+	r.Use(middleware.Logger())
+	r.Use(middleware.Recover())
+	r.Use(secureHeaders)
 
 	// Middleware for bundling frontend into binary
 	// router.Use(middleware.StaticWithConfig(middleware.StaticConfig{
@@ -38,20 +24,7 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	// router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	// 	app.notFound(w)
 	// })
-
-	apiRoute := router.Group("/api")
-	
-
-	spotifyplaylist.RegisterHandlers(apiRoute, app.Spotify.Authenticator, app.Spotify.RedirectURI, app.Spotify.State, app.ErrorLog, app.InfoLog, app.Env)
-	ytplaylist.RegisterHandlers(apiRoute, app.Youtube.Config, app.Youtube.State, app.ErrorLog, app.InfoLog, app.Env)
-	combine.RegisterHandlers(apiRoute,app.Spotify.Authenticator,  app.Youtube.Config, app.ErrorLog, app.InfoLog, app.Env)
-
-	// apiRoute.POST("/mytest", app.createPlaylistHandler, app.generateYoutubeClient)
-	// standard := alice.New(app.logRequest, secureHeaders)
-	// return standard.Then(router)
-	return router
 }
-
 
 func secureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
