@@ -7,6 +7,9 @@ const nextConfig = {
     trailingSlash: true,
     // Optional: Change the output directory `out` -> `dist`
     distDir: 'dist',
+    env: {
+      PRODUCTION_MODE: true,
+    },
   }
    
   module.exports = nextConfig

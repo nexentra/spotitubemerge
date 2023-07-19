@@ -18,6 +18,8 @@ RUN CGO_ENABLED=0 go build -ldflags "-w" -a -buildvcs=false -o main ./cmd/web
 # Stage 3: Run the binary
 FROM gcr.io/distroless/static
 EXPOSE 8080
+EXPOSE 8081
+EXPOSE 3000
 WORKDIR /app
 COPY --from=binary-builder --chown=nonroot:nonroot /builder/main .
 COPY client_secret.json client_secret.json

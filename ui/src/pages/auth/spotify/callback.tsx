@@ -9,7 +9,7 @@ function Callback() {
   const handleCallback = async () => {
     const code = router.query.code; // Get the code query parameter from the URL
     try {
-      const response = await axios.post(`${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/auth/spotify/callback`, { code });
+      const response = await axios.post(`${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/auth/spotify/callback`, { code });
       let token = response.data.token
       if (token) {
         const expiryTime = response.data.token.expiry;

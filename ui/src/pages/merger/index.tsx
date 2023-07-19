@@ -34,7 +34,7 @@ function Playlists() {
   async function fetchYoutubePlaylists() {
     try {
       const response = await axios.get(
-        `${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/youtube-playlist`,
+        `${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/youtube-playlist`,
         {
           headers: {
             AuthorizationYoutube: `${jsCookie.get("yt-token")}`,
@@ -51,7 +51,7 @@ function Playlists() {
   async function fetchSpotifyPlaylists() {
     try {
       const response = await axios.get(
-        `${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/spotify-playlist`,
+        `${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/spotify-playlist`,
         {
           headers: {
             Authorization: `${jsCookie.get("spotify-token")}`,
@@ -67,7 +67,7 @@ function Playlists() {
 
   const startMerger = async () => {
     try {
-      const response = await axios.post(`${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/merge-yt-spotify`, {
+      const response = await axios.post(`${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/merge-yt-spotify`, {
         "spotify-playlists": selectedItemsSpotify,
         "youtube-playlists": selectedItemsYt
        },

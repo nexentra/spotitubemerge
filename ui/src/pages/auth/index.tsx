@@ -9,7 +9,8 @@ const Auth = () => {
   const [error, setError] = useState(null);
   const fetchData = async (route: String) => {
     try {
-      const response = await axios.get(`${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/auth/` + route);
+      console.log((process.env.NODE_ENV !="production"),typeof (process.env.NODE_ENV !="production"), "fetching data");
+      const response = await axios.get(`${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/auth/` + route);
       setData(response.data);
     } catch (error: any) {
       setError(error.message);

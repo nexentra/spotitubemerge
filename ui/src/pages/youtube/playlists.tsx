@@ -20,7 +20,7 @@ function Playlists() {
   async function fetcher() {
     try {
       const response = await axios.get(
-        `${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/youtube-playlist`,
+        `${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/youtube-playlist`,
         {
           headers: {
             AuthorizationYoutube: `${jsCookie.get("yt-token")}`,
