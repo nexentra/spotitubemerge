@@ -10,7 +10,7 @@ function PlaylistItem() {
   useEffect(() => {
     async function fetcher() {
       let response1 = await axios.get(
-        "http://localhost:8080" + "/api/spotify-items",
+        `${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/spotify-items`,
         {
           headers: {
             Authorization: `${jsCookie.get("spotify-token")}`,

@@ -10,7 +10,7 @@ function PlaylistItem() {
   useEffect(() => {
     async function fetcher() {
       let response1 = await axios.get(
-        "http://localhost:8080" + "/api/youtube-items",
+         `${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/youtube-items`,
         {
           headers: {
             Authorization: `${jsCookie.get("yt-token")}`,

@@ -11,7 +11,7 @@ import (
 func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	router := echo.New()
 	
-	middleware.EchoMiddleware(router)
+middleware.EchoMiddleware(router, app.Env["PRODUCTION_MODE"])
 
 	router.GET("/devices", getDevices)
 	router.POST("/devices", createDevice)

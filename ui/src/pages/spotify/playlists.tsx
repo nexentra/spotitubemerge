@@ -20,7 +20,7 @@ function Playlists() {
   async function fetcher() {
     try {
       const response = await axios.get(
-        "http://localhost:8080" + "/api/spotify-playlist",
+        `${!process.env.PRODUCTION_MODE && "http://localhost:8080"}/api/spotify-playlist`,
         {
           headers: {
             Authorization: `${jsCookie.get("spotify-token")}`,
