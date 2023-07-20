@@ -26,12 +26,12 @@ tmux split-window -h bash
 
 # Run frontend if specified
 if [ "$run_frontend" = true ]; then
-    tmux send -t 0:0.0 "make run-frontend" C-m
+    tmux send -t 0:0.0 "cd ./ui && npm run dev" C-m
 fi
 
 # Run backend if specified
 if [ "$run_backend" = true ]; then
-    tmux send -t 0:0.1 "make run-backend" C-m
+    tmux send -t 0:0.1 "go run ./cmd/web" C-m
 fi
 
 tmux -2 attach-session -d

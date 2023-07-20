@@ -5,10 +5,10 @@ BINARY = main
 
 # Commands
 run-backend:
-	go run $(CMD_DIR)
+	./config/run.sh backend
 
 run-frontend:
-	cd $(WEB_DIR) && npm run dev
+	./config/run.sh frontend
 
 run:
 	./config/run.sh

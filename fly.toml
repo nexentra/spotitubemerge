@@ -12,7 +12,7 @@ kill_timeout = "5s"
   auto_rollback = true
 
 [env]
-  PRODUCTION_MODE = "true"
+
 
 [[services]]
   protocol = "tcp"

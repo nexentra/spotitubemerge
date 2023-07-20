@@ -1,18 +1,19 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/nexentra/spotitubemerge/internal/combine"
 	"github.com/nexentra/spotitubemerge/internal/middleware"
 	spotifyplaylist "github.com/nexentra/spotitubemerge/internal/spotify_playlist"
 	ytplaylist "github.com/nexentra/spotitubemerge/internal/yt_playlist"
-	"net/http"
 )
 
 func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 	router := echo.New()
 
-	middleware.EchoMiddleware(router, app.Env["PRODUCTION_MODE"])
+	middleware.EchoMiddleware(router, app.Env["NODE_ENV"])
 
 	router.GET("/devices", getDevices)
 	router.POST("/devices", createDevice)
