@@ -12,7 +12,7 @@ func EchoMiddleware(r *echo.Echo, prod string) {
 	r.Use(secureHeaders)
 
 	// Middleware for bundling frontend into binary
-	if prod  == "true" {
+	if prod  == "production" {
 		r.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 			Filesystem: frontend.BuildHTTPFS(),
 			HTML5:      true,
