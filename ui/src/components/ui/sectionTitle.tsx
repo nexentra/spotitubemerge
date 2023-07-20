@@ -1,7 +1,7 @@
 import React from "react";
 import Container from "./container";
 
-const SectionTitle = (props: { align: string; pretitle: string | number | boolean | React.ReactFragment | React.ReactPortal | React.PromiseLikeOfReactNode | React.ReactElement<any, string | React.JSXElementConstructor<any>> | null | undefined; title: string | number | boolean | React.ReactFragment | React.ReactPortal | React.PromiseLikeOfReactNode | React.ReactElement<any, string | React.JSXElementConstructor<any>> | null | undefined; children: string | number | boolean | React.ReactFragment | React.ReactPortal | React.PromiseLikeOfReactNode | React.ReactElement<any, string | React.JSXElementConstructor<any>> | null | undefined; }) => {
+const SectionTitle = (props: any) => {
   return (
     <Container
       className={`flex w-full flex-col mt-4 ${

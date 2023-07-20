@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import jsCookie from "js-cookie";
+import Link from "next/link";
 
 const Auth = () => {
   const router = useRouter();
@@ -47,7 +48,7 @@ const Auth = () => {
             <div className="p-6 sm:p-16">
               <div className="space-y-4">
                 <img
-                  src="https://tailus.io/sources/blocks/social/preview/images/icon.svg"
+                  src="/public/vercel.svg"
                   loading="lazy"
                   className="w-10"
                   alt="tailus logo"
@@ -57,19 +58,33 @@ const Auth = () => {
                 </h2>
               </div>
               <div className="mt-16 grid space-y-4">
-                <button onClick={() => fetchData("youtube")} className="group h-12 px-6 border-2 border-gray-300 rounded-full transition duration-300 hover:border-blue-400 focus:bg-blue-50 active:bg-blue-100">
+                <button
+                  onClick={() => fetchData("youtube")}
+                  className="group h-12 px-6 border-2 border-gray-300 rounded-full transition duration-300 hover:border-blue-400 focus:bg-blue-50 active:bg-blue-100"
+                >
                   <div className="relative flex items-center space-x-4 justify-center">
-                    <img
-                      src="https://tailus.io/sources/blocks/social/preview/images/google.svg"
+                    <svg
                       className="absolute left-0 w-5"
-                      alt="google logo"
-                    />
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 18 19"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
                     <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-blue-600 sm:text-base">
                       Connect with Google
                     </span>
                   </div>
                 </button>
-                <button onClick={() => fetchData("spotify")} className="group h-12 px-6 border-2 border-gray-300 rounded-full transition duration-300 hover:border-blue-400 focus:bg-blue-50 active:bg-blue-100">
+                <button
+                  onClick={() => fetchData("spotify")}
+                  className="group h-12 px-6 border-2 border-gray-300 rounded-full transition duration-300 hover:border-blue-400 focus:bg-blue-50 active:bg-blue-100"
+                >
                   <div className="relative flex items-center space-x-4 justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -106,10 +121,11 @@ const Auth = () => {
 
               <div className="mt-32 space-y-4 text-gray-600 text-center sm:-mb-8">
                 <p className="text-xs">
-                  By clicking connect with google, connect with spotify you agree to our{" "}
-                  <a href="#" className="underline">
+                  By clicking connect with google, connect with spotify you
+                  agree to our{" "}
+                  <Link href={"terms-n-conditions"} className="underline">
                     Terms and Conditions
-                  </a>{" "}
+                  </Link>{" "}
                   {/* and confirm you have read our{" "}
                   <a href="#" className="underline">
                     Privacy and Cookie Statement

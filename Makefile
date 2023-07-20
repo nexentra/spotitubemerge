@@ -40,7 +40,7 @@ db-up:
 	docker compose up -d db
 
 docker-rebuild:
-	docker compose down --volumes && docker-compose up --build
+	docker compose down --volumes && docker compose up --build
 
 run-log:
 	# go run $(CMD_DIR) >>tmp/info.log 2>>tmp/error.log
