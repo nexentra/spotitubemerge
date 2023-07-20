@@ -1,27 +1,31 @@
+# Variables
+WEB_DIR = ./ui
+CMD_DIR = ./cmd/web
+BINARY = main
+
+# Commands
 run-backend:
-	go run ./cmd/web/.
+	go run $(CMD_DIR)
 
 run-frontend:
-	cd ./ui && npm run dev
+	cd $(WEB_DIR) && npm run dev
 
-run: 
-	run-backend run-frontend
+run:
+	./config/run.sh
 
-build-run:
-	cd ./ui && npm run export
+build: 
+	build-frontend build-backend
+
+build-frontend:
+	cd $(WEB_DIR) && npm run export
 	cd ..
-	rm ./main
-	CGO_ENABLED=0 go build -ldflags "-w" -a -o main ./cmd/web
-	./main
 
-build:
-	cd ./ui && npm run export
-	cd ..
-	rm ./main
-	CGO_ENABLED=0 go build -ldflags "-w" -a -o main ./cmd/web
+build-backend:
+	rm -f $(BINARY)
+	CGO_ENABLED=0 go build -ldflags "-w" -a -o $(BINARY) $(CMD_DIR)
 
 build-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/web
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BINARY) $(CMD_DIR)
 
 docker-up:
 	docker compose up --build
@@ -36,12 +40,11 @@ db-up:
 	docker compose up -d db
 
 docker-rebuild:
-	docker compose down --volumes && docker compose up --build
+	docker compose down --volumes && docker-compose up --build
 
 run-log:
-	# go run ./cmd/web >>tmp/info.log 2>>tmp/error.log
-	go run ./cmd/web -log
-
+	# go run $(CMD_DIR) >>tmp/info.log 2>>tmp/error.log
+	go run $(CMD_DIR) -log
 
 run-lint:
-	golangci-lint run --enable-all 
+	golangci-lint run --enable-all
