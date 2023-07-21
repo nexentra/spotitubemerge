@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useEffect,useState } from "react";
 import { setCookie } from "cookies-next";
 import { toast } from "react-toastify";
+import getRandomGifUrl from "@/utils/gifSelector";
 
 function Callback() {
   const router = useRouter();
@@ -49,18 +50,6 @@ function Callback() {
     }
   }, [router?.isReady]);
 
-  const gifs = [
-    "https://gifdb.com/images/high/comedian-jim-carrey-as-hackerman-vmf9qnz7nx5p9grz.gif",
-    "/gifs/1.gif",
-    "/gifs/2.gif",
-    "/gifs/3.gif",
-  ];
-
-  const getRandomGifUrl = () => {
-    const randomIndex = Math.floor(Math.random() * gifs.length);
-    return gifs[randomIndex];
-  };
-
   const randomGifUrl = getRandomGifUrl();
 
     return (
@@ -69,7 +58,7 @@ function Callback() {
         <h1 className=" text-4xl font-bold text-primary">
           Please wait we are doing Science!
         </h1>
-        <img className=" w-[600px] mt-6" src={randomGifUrl} alt="some gif" />
+        <img className=" max-w-[600px] max-h-[600px] mt-6" src={randomGifUrl} alt="some gif" />
       </div>
     </div>
     );

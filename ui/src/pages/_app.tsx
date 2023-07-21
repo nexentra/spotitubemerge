@@ -22,7 +22,7 @@ function App({ Component, pageProps }: any) {
           <ToastContainer autoClose={2000} theme="light" />
         </Portal>
       <ThemeProvider attribute="class">
-        <Navbar />
+        <Navbar/>
       <Component {...pageProps} />
       <Footer />
     </ThemeProvider>

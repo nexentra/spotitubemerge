@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
 	spotify "github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
-	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 )
 
@@ -96,17 +96,28 @@ func (r Resource) getSpotifyPlaylist(c echo.Context) error {
 		r.ErrorLog.Print(err)
 	}
 
-	playlists, err := client.GetPlaylistsForUser(c.Request().Context(), user.ID)
-	if err != nil {
-		r.ErrorLog.Print(err)
-	}
-	fmt.Println("Playlists:", playlists)
-	for _, playlist := range playlists.Playlists {
-		fmt.Println("  ", playlist.Name)
+	var allPlaylists []spotify.SimplePlaylist
+	for {
+		playlists, err := client.GetPlaylistsForUser(c.Request().Context(), user.ID, spotify.Limit(50), spotify.Offset(len(allPlaylists)))
+		if err != nil {
+			r.ErrorLog.Print(err)
+		}
+		if err != nil {
+			r.ErrorLog.Print(err)
+			break
+		}
+
+		allPlaylists = append(allPlaylists, playlists.Playlists...)
+
+		// Check if there are more playlists to fetch
+		if playlists.Next == "" {
+			fmt.Println("break")
+			break
+		}
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"playlists": playlists,
+		"playlists": allPlaylists,
 	})
 }
 
