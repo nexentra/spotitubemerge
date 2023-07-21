@@ -13,7 +13,7 @@ function PlaylistItem() {
         `${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/spotify-items`,
         {
           headers: {
-            Authorization: `${jsCookie.get("spotify-token")}`,
+            AuthorizationSpotify: `${jsCookie.get("spotify-token")}`,
           },
           params: {
             strings: router.query.id,

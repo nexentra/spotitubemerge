@@ -1,10 +1,12 @@
 // @ts-nocheck
 import axios from "axios";
+import { postAPI, getAPI } from "../../utils/api";
 import jsCookie from "js-cookie";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 import dynamic from "next/dynamic";
+import { toast } from "react-toastify";
 const YoutubePlaylistTable = dynamic(
   () => import("@/components/youtube/playlist_table"),
   { ssr: false }
@@ -31,60 +33,28 @@ function Playlists() {
     setSelectedItemsSpotify(args);
   }
 
-  async function fetchYoutubePlaylists() {
-    try {
-      const response = await axios.get(
-        `${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/youtube-playlist`,
-        {
-          headers: {
-            AuthorizationYoutube: `${jsCookie.get("yt-token")}`,
-          },
-        }
-      );
-      console.log(response?.data?.playlists);
-      setYoutubeData(response?.data?.playlists);
-    } catch (error: any) {
-      console.log(error);
-    }
-  }
-
-  async function fetchSpotifyPlaylists() {
-    try {
-      const response = await axios.get(
-        `${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/spotify-playlist`,
-        {
-          headers: {
-            Authorization: `${jsCookie.get("spotify-token")}`,
-          },
-        }
-      );
-      console.log(response?.data);
-      setSpotifyData(response?.data);
-    } catch (error: any) {
-      console.log(error);
-    }
-  }
-
-  const startMerger = async () => {
-    try {
-      const response = await axios.post(`${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/merge-yt-spotify`, {
-        "spotify-playlists": selectedItemsSpotify,
-        "youtube-playlists": selectedItemsYt
-       },
-      {
-        headers: {
-          AuthorizationSpotify: `${jsCookie.get("spotify-token")}`,
-          AuthorizationYoutube: `${jsCookie.get("yt-token")}`,
-        }
-      });
-      console.log(response,"response");
-    } catch (error) {
-      console.error("Error:", error);
-      // Handle the error appropriately
-    }
+  const fetchYoutubePlaylists = async () => {
+    const response = await getAPI("youtube-playlist");
+    setYoutubeData(response?.data?.playlists);
   };
 
+  const fetchSpotifyPlaylists = async () => {
+    const response = await getAPI("spotify-playlist");
+    setSpotifyData(response?.data);
+  };
+
+  const startMerger = async () =>
+    postAPI("merge-yt-spotify", {
+      "spotify-playlists": selectedItemsSpotify,
+      "youtube-playlists": selectedItemsYt,
+    });
+
   useEffect(() => {
+    if (!jsCookie.get("spotify-token" && "yt-token")){
+      toast.error("Please login to continue!!");
+      router.push("/auth");
+      return;
+    }
     if (router?.isReady) {
       fetchYoutubePlaylists();
       fetchSpotifyPlaylists();

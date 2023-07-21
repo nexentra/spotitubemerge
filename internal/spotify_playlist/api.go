@@ -87,7 +87,7 @@ func (r Resource) callbackSpotify(c echo.Context) error {
 
 func (r Resource) getSpotifyPlaylist(c echo.Context) error {
 	var authHeaderType *oauth2.Token
-	authHeader := c.Request().Header.Get("Authorization")
+	authHeader := c.Request().Header.Get("AuthorizationSpotify")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
 	client := spotify.New(r.Authenticator.Client(c.Request().Context(), authHeaderType))
 
@@ -112,7 +112,7 @@ func (r Resource) getSpotifyPlaylist(c echo.Context) error {
 
 func (r Resource) getSpotifyItems(c echo.Context) error {
 	var authHeaderType *oauth2.Token
-	authHeader := c.Request().Header.Get("Authorization")
+	authHeader := c.Request().Header.Get("AuthorizationSpotify")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
 	strings := c.QueryParam("strings")
 	fmt.Println("strings: ", strings)
@@ -145,7 +145,7 @@ func (r Resource) getSpotifyItems(c echo.Context) error {
 
 func (r Resource) searchSpotifyItems(c echo.Context) error {
 	var authHeaderType *oauth2.Token
-	authHeader := c.Request().Header.Get("Authorization")
+	authHeader := c.Request().Header.Get("AuthorizationSpotify")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
 
 	strings := c.QueryParam("strings")

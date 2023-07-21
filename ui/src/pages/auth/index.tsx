@@ -28,7 +28,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (jsCookie.get("spotify-token") && jsCookie.get("yt-token")) {
-      router.push("/");
+      router.push("/merger");
     }
 
     if (data) {
@@ -51,7 +51,7 @@ const Auth = () => {
                   src="/public/vercel.svg"
                   loading="lazy"
                   className="w-10"
-                  alt="tailus logo"
+                  alt="spotitubemerge logo"
                 />
                 <h2 className="mb-8 text-2xl text-cyan-900 font-bold">
                   Sign in to unlock the <br /> best of SpotiTubeMerge.

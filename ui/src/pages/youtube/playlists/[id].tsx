@@ -13,7 +13,7 @@ function PlaylistItem() {
          `${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/youtube-items`,
         {
           headers: {
-            Authorization: `${jsCookie.get("yt-token")}`,
+            AuthorizationYoutube: `${jsCookie.get("yt-token")}`,
           },
           params: {
             strings: router.query.id,

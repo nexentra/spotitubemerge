@@ -23,7 +23,7 @@ function Playlists() {
         `${(process.env.NODE_ENV !="production") ? "http://localhost:8080" : ""}/api/spotify-playlist`,
         {
           headers: {
-            Authorization: `${jsCookie.get("spotify-token")}`,
+            AuthorizationSpotify: `${jsCookie.get("spotify-token")}`,
           },
         }
       );

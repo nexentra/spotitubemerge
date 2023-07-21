@@ -51,6 +51,18 @@ func (r Resource) loginYoutube(c echo.Context) error {
 	})
 }
 
+func (r *Resource) refreshToken() error {
+	// Use the refresh token to obtain a new access token.
+	tok, err := r.Config.TokenSource(context.Background(), r.Token).Token()
+	if err != nil {
+		return err
+	}
+
+	// Update the access token and expiry time in the Token field.
+	r.Token = tok
+	return nil
+}
+
 type YoutubeCode struct {
 	Code string `json:"code"`
 }
@@ -114,7 +126,7 @@ type YoutubePlaylists struct {
 
 func (r Resource) getYoutubeItems(c echo.Context) error {
 	var authHeaderType *oauth2.Token
-	authHeader := c.Request().Header.Get("Authorization")
+	authHeader := c.Request().Header.Get("AuthorizationYoutube")
 	json.Unmarshal([]byte(authHeader), &authHeaderType)
 
 	playlistID := c.QueryParam("strings")

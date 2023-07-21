@@ -5,6 +5,9 @@ import { ThemeProvider } from "next-themes";
 import "../globals.css";
 import Navbar from "@/components/ui/navbar";
 import Footer from "@/components/ui/footer";
+import { ToastContainer } from 'react-toastify';
+import { Portal } from '@headlessui/react';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App({ Component, pageProps }: any) {
   return (
@@ -15,6 +18,9 @@ function App({ Component, pageProps }: any) {
           content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
         />
       </Head>
+      <Portal>
+          <ToastContainer autoClose={2000} theme="light" />
+        </Portal>
       <ThemeProvider attribute="class">
         <Navbar />
       <Component {...pageProps} />
