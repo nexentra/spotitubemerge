@@ -48,6 +48,10 @@ function Playlists() {
   };
 
   const startMerger = async () => {
+    if (selectedItemsYt.length === 0 || selectedItemsSpotify.length === 0) {
+      toast.error("Please select atleast one playlist from each side!!");
+      return;
+    }
     setIsMergerStarted(true);
     window.scrollTo(0, 0);
     document.body.style.overflow = "hidden";
@@ -95,8 +99,9 @@ function Playlists() {
 
   return (
     <>
-      {isMergerStarted && (
+      {isMergerStarted ? (
         <div className="z-10 fixed w-full h-full flex justify-center bg-gradient-to-br from-sky-50 to-gray-200 dark:bg-trueGray-900 dark:from-gray-800 dark:to-gray-900 duration-700">
+          <Beforeunload onBeforeunload={(event) => event.preventDefault()} />
           <div className="container flex flex-col items-center py-10">
             <h1 className=" text-center text-2xl font-bold text-primary ">
               Please wait we are merging your playlists! It might take some time
@@ -109,11 +114,8 @@ function Playlists() {
             />
           </div>
         </div>
-      )}
+      ):
       <div className={`container mx-auto`}>
-        {isMergerStarted && (
-          <Beforeunload onBeforeunload={(event) => event.preventDefault()} />
-        )}
         <div className="use flex flex-col items-center justify-center">
           <button
             disabled={isMergerStarted}
@@ -145,7 +147,8 @@ function Playlists() {
             </div>
           )}
         </div>
-      </div>
+      </div>}
+      
     </>
   );
 }
