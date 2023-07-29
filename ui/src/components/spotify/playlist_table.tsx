@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
@@ -92,7 +93,7 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
                   </div>
                 </td>
                 <td className="w-32">
-                  <img src={item?.images[0]?.url} alt="Apple Watch" />
+                  <Image src={item?.images[0]?.url} alt="image" width={120} height={90} />
                 </td>
                 <td className="px-6 py-4 font-medium whitespace-nowrap">
                   {item?.name}

@@ -66,7 +66,15 @@ func main() {
 		errorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	}
 
-	b, err := ioutil.ReadFile("client_secret.json")
+	var ytConfigFile string
+
+	if envFile["NODE_ENV"] == "production" {
+		ytConfigFile = "client_secret.json"
+	} else {
+		ytConfigFile = "dev_client.json"
+	}
+
+	b, err := ioutil.ReadFile(ytConfigFile)
 	if err != nil {
 		log.Printf("Unable to read client secret file: %v", err)
 	}
@@ -76,8 +84,16 @@ func main() {
 		log.Printf("Unable to parse client secret file to config: %v", err)
 	}
 
+	var redirectUri string
+
+	if envFile["NODE_ENV"] == "production" {
+		redirectUri = "https://spotitubemerge.nexentra.online/auth/spotify/callback"
+	} else {
+		redirectUri = "http://localhost:8080/auth/spotify/callback"
+	}
+
 	authenticator := spotifyauth.New(
-		spotifyauth.WithRedirectURL("http://localhost:8080/auth/spotify/callback"),
+		spotifyauth.WithRedirectURL(redirectUri),
 		spotifyauth.WithScopes(
 			spotifyauth.ScopeUserReadPrivate,
 			spotifyauth.ScopePlaylistReadCollaborative,

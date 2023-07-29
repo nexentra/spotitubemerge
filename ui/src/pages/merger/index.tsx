@@ -58,19 +58,17 @@ function Playlists() {
     const merger = () => postAPI("merge-yt-spotify", {
       "spotify-playlists": selectedItemsSpotify,
       "youtube-playlists": selectedItemsYt,
-    });
-
-    merger()
-      .then((res) => {
-        setIsMergerStarted(false);
-        // toast.success("Merger finished successfully!!");
-        document.body.style.overflow = "auto";
-      })
-      .catch((err) => {
-        setIsMergerStarted(false);
-        // toast.error("Merger failed!! :(");
-        document.body.style.overflow = "auto";
-      });
+    }).then((res) => {
+      setIsMergerStarted(false);
+      // toast.success("Merger finished successfully!!");
+      document.body.style.overflow = "auto";
+    })
+    .catch((err) => {
+      setIsMergerStarted(false);
+      // toast.error("Merger failed!! :(");
+      document.body.style.overflow = "auto";
+    });;
+      
     toast.promise(merger, {
       pending: "Processing your request",
       success: "Request resolved 👌",
