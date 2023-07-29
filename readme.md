@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
   <a href="https://github.com/KnockOutEZ/spotitubemerge">
-    <img src="https://iili.io/HZ5XyrP.md.png" alt="Logo" width="80" height="80">
+    <img src="/assets/SpotiTubeMerge-logo/default.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">SpotiTubeMerge</h3>
@@ -35,10 +35,10 @@ Key Features:
 
 ## Built With
 
-`Backend:` Go + Labstack Echo
-`Frontend:` React + Nextjs +Tailwind
-`Containerization and deployment:` Docker + Fly.io
-`Monitoring:` Prometheus + Grafana
+* `Backend:` Go + Labstack Echo
+* `Frontend:` React + Nextjs +Tailwind
+* `Containerization and deployment:` Docker + Fly.io
+* `Monitoring:` Prometheus + Grafana
 
 ## Usage
 
