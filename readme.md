@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
   <a href="https://github.com/KnockOutEZ/spotitubemerge">
-    <img src="/assets/SpotiTubeMerge-logo/default.png" alt="Logo" width="80" height="80">
+    <img src="https://iili.io/HZ5XyrP.md.png" alt="SpotiTubeMerge" width="420" height="80">
   </a>
 
   <h3 align="center">SpotiTubeMerge</h3>
