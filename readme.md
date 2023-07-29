@@ -42,7 +42,7 @@ Key Features:
 
 ## Usage
 
-First go to in [here](https://spotitubemerge.nexentra.online/auth) and login with both Spotify and Youtube. Then choose any single or multiple playlist you want from both side. Then click on merge button. It should start merging your playlists and create a new playlist named SpotiTubeMerge in both spotify and youtube under your account.
+First go to [here](https://spotitubemerge.nexentra.online/auth) and login with both Spotify and Youtube. Then choose any single or multiple playlist you want from both side. Then click on merge button. It should start merging your playlists and create a new playlist named SpotiTubeMerge in both spotify and youtube under your account.
 
 
 ## License
