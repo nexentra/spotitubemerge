@@ -72,9 +72,9 @@ function Playlists() {
         document.body.style.overflow = "auto";
       });
     toast.promise(merger, {
-      pending: "Promise is pending",
-      success: "Promise resolved 👌",
-      error: "Promise rejected 🤯",
+      pending: "Processing your request",
+      success: "Request resolved 👌",
+      error: "Request failed! 🤯",
     });
   };
 
@@ -119,7 +119,7 @@ function Playlists() {
         <div className="use flex flex-col items-center justify-center">
           <button
             disabled={isMergerStarted}
-            className="w-[250px] px-6 py-3 mt-3 text-center text-white bg-indigo-600 rounded-md lg:ml-5"
+            className="w-[250px] px-6 py-3 mt-3 mb-6 text-center text-white bg-indigo-600 rounded-md lg:ml-5"
             onClick={startMerger}
           >
             Start Merger

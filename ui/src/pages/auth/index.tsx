@@ -3,11 +3,14 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import jsCookie from "js-cookie";
 import Link from "next/link";
+import Image from "next/image";
+import { useTheme } from "next-themes";
 
 const Auth = () => {
   const router = useRouter();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const { theme, setTheme } = useTheme();
   const fetchData = async (route: String) => {
     try {
       console.log(
@@ -47,14 +50,17 @@ const Auth = () => {
           <div className="rounded-xl bg-white shadow-xl">
             <div className="p-6 sm:p-16">
               <div className="space-y-4">
-                <img
-                  src="/public/vercel.svg"
-                  loading="lazy"
-                  className="w-10"
-                  alt="spotitubemerge logo"
-                />
                 <h2 className="mb-8 text-2xl text-cyan-900 font-bold">
-                  Sign in to unlock the <br /> best of SpotiTubeMerge.
+                  Sign in to unlock the <br /> best of{" "}
+                  <Image
+                    src={
+                      theme === "dark" ? "/logo-white.svg" : "/logo-black.svg"
+                    }
+                    alt="logo"
+                    width="32"
+                    height="32"
+                    className="w-[210px] inline-block"
+                  />
                 </h2>
               </div>
               <div className="mt-16 grid space-y-4">

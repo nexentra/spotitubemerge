@@ -29,12 +29,13 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
   }, [selectedItems]);
 
   return (
-    <div className="relative overflow-x-auto overflow-y-auto max-h-[700px] shadow-md sm:rounded-lg">
-      <table className="w-full text-sm text-left text-gray-500 ">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+    <div className="relative overflow-x-auto overflow-y-auto max-h-[700px] shadow-lg sm:rounded-lg dark:shadow-blue-500/50">
+      <table className="w-full text-sm text-left">
+        <thead className="text-xs uppercase bg-gray-50 dark:bg-transparent">
           <tr>
             <th scope="col" className="p-4">
-              <div className="flex items-center">
+              {/* uncomment to add the select all input box */}
+              {/* <div className="flex items-center">
                 <input
                   id="checkbox-all-search"
                   type="checkbox"
@@ -44,13 +45,13 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
                 <label htmlFor="checkbox-all-search" className="sr-only">
                   checkbox
                 </label>
-              </div>
+              </div> */}
             </th>
             <th scope="col" className="px-6 py-3">
               <span className="sr-only">Image</span>
             </th>
             <th scope="col" className="px-6 py-3">
-              Name
+            Playlist Name
             </th>
             {!mergerPage && (
               <th scope="col" className="px-6 py-3">
@@ -65,7 +66,7 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
         <tbody>
           {data ? (
             data.map((item: any, index: any) => (
-              <tr key={index} className="bg-white border-b hover:bg-gray-50">
+              <tr key={index} className="bg-white border-b dark:border-b-gray-700 hover:bg-gray-50 dark:bg-transparent">
                 <td className="w-4 p-4">
                   <div className="flex items-center">
                     <input
@@ -90,7 +91,7 @@ const PlaylistTable = ({ mergerPage, data, selectedItemsFunc }: any) => {
                     alt="Apple Watch"
                   />
                 </td>
-                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                <td className="px-6 py-4 font-medium whitespace-nowrap">
                   {item?.snippet?.localized?.title}
                 </td>
                 {!mergerPage && (
