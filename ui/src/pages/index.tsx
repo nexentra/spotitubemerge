@@ -13,23 +13,23 @@ import Footer from "@/components/ui/footer";
 export default function Home() {
   return (
     <>
-    <Head>
-        <title>Spotitubemerge - Merge your playlists in few clicks!!</title>
+      <Head>
+        <title>SpotiTubeMerge - Merge your playlists in few clicks!!</title>
         <meta
           name="description"
-          content="Spotitubemerge is a simple web app that allows you to merge your Spotify and Youtube playlists in few clicks!!"
+          content="SpotiTubeMerge is a simple web app that allows you to merge your Spotify and Youtube playlists in few clicks!!"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Hero/>
-      
+      <Hero />
+
       <SectionTitle
-        pretitle="Nextly Benefits"
-        title=" Why should you use this landing page">
-        Nextly is a free landing page & marketing website template for startups
-        and indie projects. Its built with Next.js & TailwindCSS. And its
-        completely open-source.
+        pretitle="SpotiTubeMerge Benefits"
+        title="Why should you use our service"
+      >
+        SpotiTubeMerge is an online platform that lets users merge their Spotify
+        and YouTube playlists.
       </SectionTitle>
 
       <Benefits data={benefitOne} />

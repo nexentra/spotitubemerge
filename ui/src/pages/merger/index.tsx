@@ -79,7 +79,7 @@ function Playlists() {
   };
 
   useEffect(() => {
-    if (!jsCookie.get("spotify-token" && "yt-token")) {
+    if (!jsCookie.get("spotify-token") || !jsCookie.get("yt-token")) {
       toast.error("Please login to continue!!");
       router.push("/auth");
       return;

@@ -136,12 +136,12 @@ func (r Resource) mergeYtSpotify(c echo.Context) error {
 	}
 
 	// Create a new spotify playlist
-	newSpotifyPlaylist, err := client.CreatePlaylistForUser(context.Background(), user.ID, "testPlaylist", "New playlist for searched tracks", false, false)
+	newSpotifyPlaylist, err := client.CreatePlaylistForUser(context.Background(), user.ID, "spotitubeMergePlaylist", "New playlist for searched tracks", false, false)
 	if err != nil {
 		fmt.Println("Error creating playlist:", err)
 	}
 
-	newYoutubePlaylist, err := ytplaylist.CreatePlaylist(ytClient, "testPlaylist")
+	newYoutubePlaylist, err := ytplaylist.CreatePlaylist(ytClient, "spotitubeMergePlaylist")
 	if err != nil {
 		fmt.Println("Error creating playlist: ", err)
 	}

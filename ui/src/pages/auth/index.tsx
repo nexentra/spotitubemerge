@@ -4,13 +4,11 @@ import axios from "axios";
 import jsCookie from "js-cookie";
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 
 const Auth = () => {
   const router = useRouter();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const { theme, setTheme } = useTheme();
   const fetchData = async (route: String) => {
     try {
       console.log(
@@ -44,8 +42,8 @@ const Auth = () => {
   }, [data]);
 
   return (
-    <div className="relative py-16 h-screen">
-      <div className="relative container m-auto px-6 text-gray-500 md:px-12 xl:px-40">
+    <div className="relative py-16 h-full">
+      <div className="relative container max-h-[500px] m-auto px-6 text-gray-500 md:px-12 xl:px-40">
         <div className="m-auto md:w-8/12 lg:w-6/12 xl:w-6/12">
           <div className="rounded-xl bg-white shadow-xl">
             <div className="p-6 sm:p-16">
@@ -54,7 +52,7 @@ const Auth = () => {
                   Sign in to unlock the <br /> best of{" "}
                   <Image
                     src={
-                      theme === "dark" ? "/logo-white.svg" : "/logo-black.svg"
+                      "/logo-black.svg"
                     }
                     alt="logo"
                     width="32"
