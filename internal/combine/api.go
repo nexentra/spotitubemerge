@@ -10,18 +10,20 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/nexentra/spotitubemerge/internal/middleware"
 	"github.com/nexentra/spotitubemerge/internal/yt_playlist"
+	"github.com/redis/go-redis/v9"
 	spotify "github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/youtube/v3"
 )
 
-func RegisterHandlers(r *echo.Group, authenticator *spotifyauth.Authenticator, config *oauth2.Config, errorLog *log.Logger, infoLog *log.Logger, env map[string]string) {
+func RegisterHandlers(r *echo.Group, authenticator *spotifyauth.Authenticator, config *oauth2.Config, errorLog *log.Logger, infoLog *log.Logger, env map[string]string, redisClient *redis.Client) {
 	res := Resource{
 		Authenticator: authenticator,
-		ErrorLog: errorLog,
-		InfoLog: infoLog,
-		Env: env,
+		ErrorLog:      errorLog,
+		InfoLog:       infoLog,
+		Env:           env,
+		RedisClient:   redisClient,
 	}
 
 	resConfig := middleware.Resource{
@@ -30,7 +32,6 @@ func RegisterHandlers(r *echo.Group, authenticator *spotifyauth.Authenticator, c
 
 	r.POST("/merge-yt-spotify", res.mergeYtSpotify, resConfig.GenerateYoutubeClient)
 }
-
 
 type MergerList struct {
 	YoutubePlaylists []string `json:"youtube-playlists"`
@@ -42,8 +43,8 @@ type Resource struct {
 	ErrorLog      *log.Logger
 	InfoLog       *log.Logger
 	Env           map[string]string
+	RedisClient   *redis.Client
 }
-
 
 func (r Resource) mergeYtSpotify(c echo.Context) error {
 	//get data

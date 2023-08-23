@@ -10,17 +10,19 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/nexentra/spotitubemerge/internal/models"
+	"github.com/redis/go-redis/v9"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/youtube/v3"
 )
 
 type Application struct {
-	ErrorLog *log.Logger
-	InfoLog  *log.Logger
-	Spotify  *models.SpotifyModel
-	Youtube  *models.YoutubeModel
-	Env      map[string]string
+	ErrorLog    *log.Logger
+	InfoLog     *log.Logger
+	Spotify     *models.SpotifyModel
+	Youtube     *models.YoutubeModel
+	Env         map[string]string
+	RedisClient *redis.Client
 }
 
 type configType struct {
@@ -28,7 +30,11 @@ type configType struct {
 }
 
 func main() {
-	envFile, _ := godotenv.Read(".env")
+	envFile, err := godotenv.Read(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	
 	var cfg configType
 	var errorLog *log.Logger
 	var infoLog *log.Logger
@@ -84,13 +90,13 @@ func main() {
 		log.Printf("Unable to parse client secret file to config: %v", err)
 	}
 
-	var redirectUri string
+	var redirectUri string = envFile["SPOTIFY_REDIRECT_URI"]
 
-	if envFile["NODE_ENV"] == "production" {
-		redirectUri = "https://spotitubemerge.nexentra.online/auth/spotify/callback"
-	} else {
-		redirectUri = "http://localhost:8080/auth/spotify/callback"
-	}
+	rdb := redis.NewClient(&redis.Options{
+        Addr:     envFile["REDIS_ADDR"],
+        Password: envFile["REDIS_PASSWORD"],
+        DB:       0,
+    })
 
 	authenticator := spotifyauth.New(
 		spotifyauth.WithRedirectURL(redirectUri),
@@ -100,7 +106,6 @@ func main() {
 			spotifyauth.ScopePlaylistReadPrivate,
 			spotifyauth.ScopePlaylistModifyPublic,
 			spotifyauth.ScopePlaylistModifyPrivate,
-			
 		),
 		spotifyauth.WithClientID(envFile["SPOTIFY_CLIENT_ID"]),
 		spotifyauth.WithClientSecret(envFile["SPOTIFY_CLIENT_SECRET"]),
@@ -118,6 +123,7 @@ func main() {
 			State:  envFile["YOUTUBE_STATE"],
 		},
 		Env: envFile,
+		RedisClient: rdb,
 	}
 
 	mux := http.NewServeMux()
@@ -135,17 +141,17 @@ func main() {
 		Handler:  application.PrometheusRoutes(prometheusMux),
 	}
 
-go func(){
-	application.InfoLog.Printf("Starting server on http://localhost:%d", 8080)
-	err = srv.ListenAndServe()
-	application.ErrorLog.Fatal(err)
-}()
+	go func() {
+		application.InfoLog.Printf("Starting server on http://localhost:%d", 8080)
+		err = srv.ListenAndServe()
+		application.ErrorLog.Fatal(err)
+	}()
 
-go func(){
-	application.InfoLog.Printf("Starting server on http://localhost:%d", 8081)
-	err = prometheusSrv.ListenAndServe()
-	application.ErrorLog.Fatal(err)
-}()
+	go func() {
+		application.InfoLog.Printf("Starting server on http://localhost:%d", 8081)
+		err = prometheusSrv.ListenAndServe()
+		application.ErrorLog.Fatal(err)
+	}()
 
-select {}
+	select {}
 }

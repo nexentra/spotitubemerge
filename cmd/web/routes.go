@@ -7,6 +7,7 @@ import (
 	"github.com/nexentra/spotitubemerge/internal/combine"
 	"github.com/nexentra/spotitubemerge/internal/middleware"
 	spotifyplaylist "github.com/nexentra/spotitubemerge/internal/spotify_playlist"
+	"github.com/nexentra/spotitubemerge/internal/utils"
 	ytplaylist "github.com/nexentra/spotitubemerge/internal/yt_playlist"
 )
 
@@ -24,7 +25,8 @@ func (app *Application) Routes(mux *http.ServeMux) http.Handler {
 
 	spotifyplaylist.RegisterHandlers(apiRoute, app.Spotify.Authenticator, app.Spotify.RedirectURI, app.Spotify.State, app.ErrorLog, app.InfoLog, app.Env)
 	ytplaylist.RegisterHandlers(apiRoute, app.Youtube.Config, app.Youtube.State, app.ErrorLog, app.InfoLog, app.Env)
-	combine.RegisterHandlers(apiRoute, app.Spotify.Authenticator, app.Youtube.Config, app.ErrorLog, app.InfoLog, app.Env)
+	combine.RegisterHandlers(apiRoute, app.Spotify.Authenticator, app.Youtube.Config, app.ErrorLog, app.InfoLog, app.Env, app.RedisClient)
+	utils.RegisterHandlers(apiRoute, app.ErrorLog, app.InfoLog, app.Env)
 
 	return router
 }
