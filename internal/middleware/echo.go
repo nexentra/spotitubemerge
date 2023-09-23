@@ -30,7 +30,8 @@ func EchoMiddleware(r *echo.Echo, prod string) {
 
 func secureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		c.Response().Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com")
+		// c.Response().Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com")
+		c.Response().Header().Set("Content-Security-Policy", "default-src *")
 		c.Response().Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		c.Response().Header().Set("Access-Control-Allow-Origin", "*")
 		c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, AuthorizationYoutube, AuthorizationSpotify, X-Requested-With")

@@ -14,11 +14,8 @@ const nextConfig = {
           hostname: "**",
         },
       ],
+      unoptimized: true,
     },
-
-    images: {
-      unoptimized: true
-  }
   }
    
   module.exports = nextConfig

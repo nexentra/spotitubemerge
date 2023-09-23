@@ -39,7 +39,7 @@ const Auth = () => {
       console.log(newData?.authUrl);
       window.location = newData?.authUrl;
     }
-  }, [data]);
+  }, [router, data]);
 
   return (
     <div className="relative py-16 h-full">

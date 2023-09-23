@@ -15,6 +15,10 @@
 
 ![Contributors](https://img.shields.io/github/contributors/KnockOutEZ/spotitubemerge?color=dark-green) ![Forks](https://img.shields.io/github/forks/KnockOutEZ/spotitubemerge?style=social) ![Stargazers](https://img.shields.io/github/stars/KnockOutEZ/spotitubemerge?style=social) ![Issues](https://img.shields.io/github/issues/KnockOutEZ/spotitubemerge) ![License](https://img.shields.io/github/license/KnockOutEZ/spotitubemerge) 
 
+## Note
+This Project is still under Google and Spotify API review. So you might face issues while Authenticating. Please send me your email address that you want to use during the Google and Spotify authentication so I can add it in allow access list. You can send me your email address at any of the social media platforms mentioned in my profile.
+
+
 ## About The Project
 
 SpotiTubeMerge - Unite your Spotify and YouTube playlists for a seamless music journey!
@@ -36,7 +40,8 @@ Key Features:
 ## Built With
 
 * `Backend:` Go + Labstack Echo
-* `Frontend:` React + Nextjs +Tailwind
+* `Frontend:` Typescript + React + Nextjs + TailwindCSS
+* `Database:` Postgresql + GORM
 * `Containerization and deployment:` Docker + Fly.io
 * `Monitoring:` Prometheus + Grafana
 
